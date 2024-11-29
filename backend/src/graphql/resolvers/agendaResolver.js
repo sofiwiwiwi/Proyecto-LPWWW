@@ -1,8 +1,17 @@
 const Agenda = require('../../models/Agenda');
 const Calendar = require('../../models/Calendar');
 const Doctor = require('../../models/Doctor');
+const User = require("../../models/User"); 
 
 const COMMISSION_PERCENTAGE = 30;
+
+const convertToValidDate = (dateString) => {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    throw new Error(`Invalid Date: ${dateString}`);
+  }
+  return date;
+};
 
 const agendaResolver = {
   Query: {
@@ -16,25 +25,21 @@ const agendaResolver = {
       }).sort({ date: 1 });
     },
     getWaitingPatients: async (_, { doctorId }) => {
-      const today = new Date().setHours(0, 0, 0, 0);
-
-      const agendas = await Agenda.find({
-        doctorId,
-        date: { $lte: today },
-      });
+      const agendas = await Agenda.find({ doctorId }); 
 
       const waitingPatients = [];
 
       for (const agenda of agendas) {
         for (const slot of agenda.timeSlots) {
           if (slot.isReserved && slot.patientId) {
-            const patient = await User.findById(slot.patientId);
+            const patient = await User.findById(slot.patientId); 
             if (patient) {
               waitingPatients.push({
                 patientId: patient.id,
                 patientName: patient.name,
                 startTime: slot.startTime,
                 endTime: slot.endTime,
+                date: agenda.date,
               });
             }
           }
@@ -257,27 +262,29 @@ const agendaResolver = {
       if (!user || user.role !== "Paciente") {
         throw new Error("No autorizado.");
       }
-
+    
       const { doctorId, date, startTime, endTime } = input;
-
+    
+      const validDate = convertToValidDate(date);
+    
       const agenda = await Agenda.findOne({
         doctorId,
-        date: new Date(date),
+        date: validDate,
       });
       if (!agenda) throw new Error("Agenda no encontrada para la fecha especificada.");
-
+    
       const slot = agenda.timeSlots.find(
         (timeSlot) =>
           timeSlot.startTime === startTime &&
           timeSlot.endTime === endTime &&
           !timeSlot.isReserved
       );
-
+    
       if (!slot) throw new Error("El horario no está disponible o ya está reservado.");
-
+    
       slot.isReserved = true;
       slot.patientId = user.id;
-
+    
       await agenda.save();
       return agenda;
     },

@@ -18,6 +18,7 @@ const authSchema = gql`
     email: String!
     password: String!
     role: String!
+    specialty: String
   }
 
   input LoginInput {

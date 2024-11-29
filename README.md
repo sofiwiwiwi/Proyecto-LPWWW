@@ -30,4 +30,24 @@ JWT_SECRET=8jJhjDpQ%W9IhG3
 ```
 #### Iniciar el servidor
 `npm run dev`
+
+#### Importante:
+En la carpeta de documentación se pueden ver las queries disponibles
 ### Frontend
+#### Tecnologías Utilizadas:
+  - Node.js 
+  - GraphQL 
+  - MongoDB 
+  - Mongoose
+
+#### Requisitos
+
+  - Node.js (v14 o superior)
+  - MongoDB (base de datos local, debe llamarse galenos)
+  - NPM (instalado con Node.js)
+
+#### Instalar dependencias
+`npm install`
+
+#### Iniciar aplicación (asegurarse de correr el backend antes)
+`npm run dev`

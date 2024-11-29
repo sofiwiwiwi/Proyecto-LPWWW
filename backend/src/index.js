@@ -34,9 +34,18 @@ app.use((req, _, next) => {
 const server = new ApolloServer({
   typeDefs: [authSchema, doctorSchema, calendarSchema, agendaSchema],
   resolvers: [authResolver, doctorResolver, calendarResolver, agendaResolver],
-  context: ({ req }) => ({
-    user: req.user,
-  }),
+  context: ({ req }) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (token) {
+      try {
+        const user = jwt.verify(token, process.env.JWT_SECRET); 
+        return { user }; 
+      } catch (err) {
+        console.error("Invalid token:", err.message);
+      }
+    }
+    return {};
+  },
 });
 
 server.start().then(() => {

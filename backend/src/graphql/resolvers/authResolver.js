@@ -1,4 +1,5 @@
 const User = require('../../models/User');
+const Doctor = require('../../models/Doctor');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -11,7 +12,7 @@ const authResolver = {
   },
   Mutation: {
     register: async (_, { input }) => {
-      const { name, email, password, role } = input;
+      const { name, email, password, role, specialty } = input;
 
       const existingUser = await User.findOne({ email });
       if (existingUser) {
@@ -28,6 +29,19 @@ const authResolver = {
       });
       await user.save();
 
+      if (role === "Médico") {
+        if (!specialty) {
+          throw new Error("La especialidad es obligatoria para un médico.");
+        }
+        const doctor = new Doctor({
+          name,
+          specialty,
+          user: user._id,
+        });
+        await doctor.save();
+      }
+
+      // Generate JWT token
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
         expiresIn: "1h",
       });
@@ -36,20 +50,25 @@ const authResolver = {
     },
     login: async (_, { input }) => {
       const { email, password } = input;
-
+    
       const user = await User.findOne({ email });
-      if (!user) throw new Error("Usuario o contraseña incorrectos.");
-
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) throw new Error("Usuario o contraseña incorrectos.");
-
-      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-        expiresIn: "1h",
-      });
-
+      if (!user) {
+        throw new Error("Usuario no encontrado.");
+      }
+    
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        throw new Error("Contraseña incorrecta.");
+      }
+    
+      const token = jwt.sign(
+        { id: user.id, role: user.role }, 
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+    
       return { token, user };
     },
   },
 };
-
 module.exports = authResolver;

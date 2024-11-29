@@ -1,0 +1,93 @@
+Obtener todos los medicos:
+query {
+  getDoctors {
+    id
+    name
+    specialty
+  }
+}
+
+obtener medico por id
+query {
+  getDoctor(id: "ID_DEL_MEDICO") {
+    id
+    name
+    specialty
+  }
+}
+
+Obtener médico por ID de usuario:
+query {
+  getDoctorByUserId(userId: "ID_DEL_USUARIO") {
+    id
+    name
+    specialty
+  }
+}
+
+obtener pagos de un medico:
+query {
+  getDoctorPayments(doctorId: "ID_DEL_MEDICO") {
+    paymentDate
+    amountPaid
+    paymentMethod
+    reference
+  }
+}
+obtener agenda de un medico:
+query {
+  getAgenda(doctorId: "ID_DEL_MEDICO", startDate: "YYYY-MM-DD", endDate: "YYYY-MM-DD") {
+    date
+    timeSlots {
+      startTime
+      endTime
+      isReserved
+    }
+  }
+}
+
+obtener pacientes en espera de un medico:
+query {
+  getWaitingPatients(doctorId: "ID_DEL_MEDICO") {
+    patientId
+    patientName
+    startTime
+    endTime
+    date
+  }
+}
+
+obtener reporte de ingresos:
+query {
+  getRevenueReport(startDate: "2024-01-01", endDate: "2024-01-31", doctorId: "ID_DEL_MEDICO") {
+    doctorId
+    doctorName
+    totalPatients
+    totalRevenue
+  }
+}
+
+obtener declaracion comisiones
+query {
+  getCommissionStatement(startDate: "2024-01-01", endDate: "2024-01-31", doctorId: "ID_DEL_MEDICO") {
+    doctorId
+    doctorName
+    totalRevenue
+    commissionPercentage
+    commissionAmount
+  }
+}
+
+obtener reporte general:
+query {
+  getGeneralReport(startDate: "2024-01-01", endDate: "2024-01-31") {
+    totalRevenue
+    totalPatients
+    doctorReports {
+      doctorId
+      doctorName
+      totalPatients
+      totalRevenue
+    }
+  }
+}

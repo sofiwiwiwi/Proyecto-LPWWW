@@ -44,6 +44,7 @@ const doctorSchema = gql`
     getDoctors: [Doctor!]!
     getDoctor(id: ID!): Doctor
     getDoctorPayments(doctorId: ID!): [Payment!]!
+    getDoctorByUserId(userId: ID!): Doctor
   }
 
   type Mutation {

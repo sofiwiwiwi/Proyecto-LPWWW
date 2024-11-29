@@ -50,6 +50,10 @@ const DoctorSchema = new mongoose.Schema({
     type: [PaymentSchema], 
     default: [],           
   },
+  user: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "User", required: true 
+  },
 });
 
 const Doctor = mongoose.model("Doctor", DoctorSchema);

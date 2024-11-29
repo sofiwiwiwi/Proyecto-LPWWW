@@ -1,0 +1,74 @@
+crear nuevo medico:
+mutation {
+  createDoctor(input: { name: "Nombre Médico", specialty: "Especialidad" }) {
+    id
+    name
+    specialty
+  }
+}
+
+añadir disponibilidad medico:
+mutation {
+  addAvailability(doctorId: "ID_DEL_MEDICO", availability: [
+    { day: "Lunes", startTime: "09:00", endTime: "13:00" },
+    { day: "Martes", startTime: "10:00", endTime: "14:00" }
+  ]) {
+    id
+    name
+    availability {
+      day
+      startTime
+      endTime
+    }
+  }
+}
+
+registrar un pago:
+mutation {
+  registerPayment(input: {
+    doctorId: "ID_DEL_MEDICO",
+    amountPaid: 100.0,
+    paymentMethod: "Transferencia",
+    reference: "Ref12345"
+  }) {
+    id
+    payments {
+      paymentDate
+      amountPaid
+      paymentMethod
+      reference
+    }
+  }
+}
+
+generar agenda:
+mutation {
+  generateAgenda(doctorId: "ID_DEL_MEDICO", startDate: "YYYY-MM-DD", endDate: "YYYY-MM-DD") {
+    id
+    date
+    timeSlots {
+      startTime
+      endTime
+      isReserved
+    }
+  }
+}
+
+marcar paciente atendido:
+mutation {
+  markPatientAttended(input: {
+    doctorId: "ID_DEL_MEDICO",
+    date: "2024-01-10",
+    startTime: "09:00",
+    endTime: "09:30"
+  }) {
+    id
+    date
+    timeSlots {
+      startTime
+      endTime
+      isReserved
+      patientId
+    }
+  }
+}

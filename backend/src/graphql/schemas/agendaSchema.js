@@ -35,6 +35,7 @@ const agendaSchema = gql`
     patientName: String!
     startTime: String!
     endTime: String!
+    date: String!
   }
   
   type GeneralReport {

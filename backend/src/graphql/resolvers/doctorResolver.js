@@ -13,6 +13,13 @@ const doctorResolver = {
       if (!doctor) throw new Error("El médico no fue encontrado.");
       return doctor.payments;
     },
+      getDoctorByUserId: async (_, { userId }) => {
+        const doctor = await Doctor.findOne({ user: userId }); // Find the doctor by userId
+        if (!doctor) {
+          throw new Error("No se encontró un médico asociado a este usuario.");
+        }
+        return doctor;
+      },
   },
   Mutation: {
     createDoctor: async (_, { input }) => {

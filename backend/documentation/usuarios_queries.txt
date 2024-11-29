@@ -1,0 +1,74 @@
+Usuario actual
+query {
+  currentUser {
+    id
+    name
+    email
+    role
+  }
+}
+
+registrar nuevo usuario:
+mutation {
+  register(input: {
+    name: "Nombre Usuario",
+    email: "correo@ejemplo.com",
+    password: "contraseña123",
+    role: "Paciente"
+  }) {
+    token
+    user {
+      id
+      name
+      role
+    }
+  }
+}
+
+iniciar sesion
+mutation {
+  login(input: { email: "correo@ejemplo.com", password: "contraseña123" }) {
+    token
+    user {
+      id
+      name
+      role
+    }
+  }
+}
+
+reservar horario
+mutation {
+  bookTimeSlot(input: {
+    doctorId: "ID_DEL_MEDICO",
+    date: "YYYY-MM-DD",
+    startTime: "09:00",
+    endTime: "09:30"
+  }) {
+    id
+    date
+    timeSlots {
+      startTime
+      endTime
+      isReserved
+    }
+  }
+}
+
+cancelar horario
+mutation {
+  cancelTimeSlot(input: {
+    doctorId: "ID_DEL_MEDICO",
+    date: "YYYY-MM-DD",
+    startTime: "09:00",
+    endTime: "09:30"
+  }) {
+    id
+    date
+    timeSlots {
+      startTime
+      endTime
+      isReserved
+    }
+  }
+}
