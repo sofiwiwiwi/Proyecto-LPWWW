@@ -48,10 +48,16 @@ h1 {
   top: 0;
   left: 0;
   z-index: 1030; 
-  background-color: #ffffff;
+  background-color: #f1f1f1;
   border-bottom: 1px solid #ddd;
   padding: 0.5rem 1rem;
 }
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+
 
 .navbar-brand img {
   margin-right: 10px;
@@ -61,6 +67,36 @@ h1 {
 .navbar .navbar-text {
   margin-right: 10px;
   font-size: 1rem;
+}
+
+.logout-button {
+  margin-right: 10px;
+  background-color: #ff6e6e;
+  color: #fff; 
+  border: none;
+  border-radius: 8px;
+  padding: 0.3rem 0.8rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #e74c4c;
+}
+
+.logout-button:active {
+  background-color: #ce4343;
+  transform: scale(0.98);
+}
+
+.logout-text {
+  display: inline;
+}
+
+.logout-icon {
+  display: none;
+  /* font-size: 1.2rem; */
 }
 
 
@@ -81,4 +117,30 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (max-width: 500px) {
+  .logout-text {
+    display: none; /* Oculta el texto en pantallas pequeñas */
+  }
+
+  .logout-icon {
+    display: inline; /* Muestra el ícono en pantallas pequeñas */
+  }
+  .navbar-text {
+    display: none;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
 }
