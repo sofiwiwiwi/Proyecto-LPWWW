@@ -6,6 +6,7 @@ import Register from "./components/Register";
 import PatientDashboard from "./components/PatientDashboard";
 import DoctorDashboard from "./components/DoctorDashboard";
 import NavBar from "./components/NavBar";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const GET_DOCTOR_BY_USER_ID = gql`
   query GetDoctorByUserId($userId: ID!) {
