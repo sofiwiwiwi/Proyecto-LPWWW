@@ -5,6 +5,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import PatientDashboard from "./components/PatientDashboard";
 import DoctorDashboard from "./components/DoctorDashboard";
+import NavBar from "./components/NavBar";
 
 const GET_DOCTOR_BY_USER_ID = gql`
   query GetDoctorByUserId($userId: ID!) {
@@ -36,9 +37,12 @@ const App = () => {
   if (!token) {
     return (
       <div>
-        <h1>Bienvenido</h1>
-        <Login />
-        <Register />
+        <NavBar user={user} logout={logout} isLoggedIn={!!token} />
+        <div>
+          <h1>Bienvenido</h1>
+          <Login />
+          <Register />
+        </div>
       </div>
     );
   }
@@ -53,6 +57,7 @@ const App = () => {
 
   return (
     <div>
+      <NavBar user={user} logout={logout} isLoggedIn={!!token} />
       <h1>Centro Médico Galenos</h1>
       <button onClick={logout}>Cerrar Sesión</button>
       {user.role === "Paciente" && <PatientDashboard />}
