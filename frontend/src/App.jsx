@@ -42,7 +42,6 @@ const App = () => {
         <div>
           <h1>Bienvenido</h1>
           <Login />
-          <Register />
         </div>
       </div>
     );
