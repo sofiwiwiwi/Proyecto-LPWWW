@@ -1,0 +1,67 @@
+/* Definir colores */
+:root {
+    --celestial-blue: #3E92CC;
+    --lapis-lazuli: #2a628f;
+    --prussian-blue: #13293d;
+    --prussian-blue2: #16324f;
+    --indigo-dye: #18435a;
+  }
+
+
+.login-container {
+    background-color: var(--celestial-blue);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    color: var(--prussian-blue);
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-label {
+    color: var(--prussian-blue2);
+    font-weight: bold;
+  }
+  
+  .form-control {
+    border-radius: 6px;
+    border: 1px solid var(--lapis-lazuli);
+    background-color: var(--celestial-blue);
+    color: var(--blue-dark);
+  }
+  
+  .form-control:focus {
+    border-color: var(--indigo-dye);
+    box-shadow: 0 0 0 0.2rem rgba(30, 136, 229, 0.25); /* sombra azul al enfocarse */
+  }
+  
+  button {
+    background-color: var(--indigo-dye);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.8rem 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: var(--prussian-blue);
+  }
+  
+  button:disabled {
+    background-color: var(--lapis-lazuli);
+    cursor: not-allowed;
+  }
+  
+  .alert-danger {
+    background-color: var(--prussian-blue);
+    color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+  }

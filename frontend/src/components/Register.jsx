@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { gql, useMutation } from "@apollo/client";
 import { useAuth } from "../authContext";
+import { useNavigate } from "react-router-dom";  // Hook para redirigir al login
 
 const REGISTER_MUTATION = gql`
   mutation Register($input: RegisterInput!) {
@@ -23,6 +24,7 @@ const Register = () => {
   const [role, setRole] = useState("Paciente"); 
   const [specialty, setSpecialty] = useState(""); 
   const { login } = useAuth();
+  const navigate = useNavigate();  // Para redirigir al login
 
   const [registerMutation, { loading, error }] = useMutation(REGISTER_MUTATION);
 
@@ -48,6 +50,11 @@ const Register = () => {
       });
       login(data.register.token, data.register.user);
       alert(`Registro exitoso. Bienvenido, ${data.register.user.name}`);
+      
+      // Redirige al login después de un registro exitoso
+      navigate("/login");  // Asumiendo que la ruta /login existe en tu configuración de rutas
+
+      // Resetea los campos del formulario
       setName("");
       setEmail("");
       setPassword("");
