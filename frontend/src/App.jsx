@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { gql, useLazyQuery } from "@apollo/client";
 import { useAuth } from "./authContext";
+import { Routes, Route } from "react-router-dom"; // No es necesario BrowserRouter aquí
 import Login from "./components/Login";
 import Register from "./components/Register";
 import PatientDashboard from "./components/PatientDashboard";
@@ -39,10 +40,11 @@ const App = () => {
     return (
       <div>
         <NavBar user={user} logout={logout} isLoggedIn={!!token} />
-        <div>
-          <h1>Bienvenido</h1>
-          <Login />
-        </div>
+        <h1>Centro Médico Galenos</h1>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
       </div>
     );
   }
