@@ -194,7 +194,6 @@ const CashierDashboard = () => {
         >
           <option value="">Seleccione un método</option>
           <option value="Cash">Efectivo</option>
-          <option value="Document">Documento</option>
           <option value="Card">Tarjeta</option>
           <option value="Isapre">Isapre</option>
           <option value="FONASA">FONASA</option>
