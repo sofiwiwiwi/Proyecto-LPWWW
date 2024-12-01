@@ -54,13 +54,18 @@ const BOOK_TIME_SLOT = gql`
 const CANCEL_TIME_SLOT = gql`
   mutation CancelTimeSlot($input: CancelTimeSlotInput!) {
     cancelTimeSlot(input: $input) {
+      id
       doctorId
       date
-      startTime
-      endTime
+      timeSlots {
+        startTime
+        endTime
+        isReserved
+      }
     }
   }
 `;
+
 
 const formatDate = (date) => {
   // Handle UNIX timestamp format
@@ -138,9 +143,8 @@ const PatientDashboard = ({ patientId }) => {
 
   const handleCancelReservation = async (appointment) => {
     try {
-      const formattedDate = new Date(Number(appointment.date)).toISOString().split("T")[0];
-      console.log("Appointment to cancel:", appointment, formattedDate);
-      await cancelTimeSlot({
+      const formattedDate = new Date(Number(appointment.date)).toISOString().split("T")[0]
+      const { data } = await cancelTimeSlot({
         variables: {
           input: {
             doctorId: appointment.doctorId,
@@ -150,22 +154,14 @@ const PatientDashboard = ({ patientId }) => {
           },
         },
       });
-      // alert("Se canceló su hora correctamente.");
-      // setPatientAppointments((prevAppointments) => {
-      //   console.log("PrevAppointments antes del filtro:", prevAppointments);
-      //   return prevAppointments.filter(
-      //     (appt) =>
-      //       appt.startTime !== appointment.startTime ||
-      //       appt.endTime !== appointment.endTime ||
-      //       formatDate(appt.date) !== formattedDate
-      //   );
-      // });
-    } catch (err) {
-      // alert(`Error al cancelar la hora: ${err.message}`);
-      console.error("Error en cancelTimeSlot:", err.message);
-      console.error("Detalles:", err.networkError || err.graphQLErrors);
+      alert("Se canceló su hora correctamente");
+      console.log("Updated Agenda:", data.cancelTimeSlot);
+    } catch (error) {
+      console.error("Error cancelando hora:", error);
+      alert("Error cancelando hora", error);
     }
   };
+
 
   if (loading) return <p>Cargando doctores...</p>;
   if (error) return <p>Error al cargar doctores: {error.message}</p>;
@@ -198,7 +194,7 @@ const PatientDashboard = ({ patientId }) => {
                             <strong>Hora:</strong> {appointment.startTime} - {appointment.endTime} <br />
                             <strong>Médico:</strong> {appointment.doctorName || "N/A"}
                             <div >
-                              <button className="btn btn-danger" onClick={() => handleCancelReservation(appointment)}>Cancelar hora</button>
+                              <button className="btn btn-danger" onClick={() => handleCancelReservation (appointment)}>Cancelar hora</button>
                             </div>
                           </li>
                         ))
