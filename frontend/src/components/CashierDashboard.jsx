@@ -29,22 +29,37 @@ const REGISTER_PAYMENT = gql`
 const GET_COMMISSION_STATEMENT = gql`
   query GetCommissionStatement($startDate: String!, $endDate: String!, $doctorId: ID) {
     getCommissionStatement(startDate: $startDate, endDate: $endDate, doctorId: $doctorId) {
+      doctorId
       doctorName
       totalRevenue
       commissionPercentage
       commissionAmount
+    }
+  }
+`;
 
+const GET_GENERAL_REPORT = gql`
+  query GetGeneralReport($startDate: String!, $endDate: String!) {
+    getGeneralReport(startDate: $startDate, endDate: $endDate) {
+      doctorReports {
+        doctorId
+        doctorName
+        totalPatients
+        totalRevenue
+      }
+      totalPatients
+      totalRevenue
     }
   }
 `;
 
 const GET_REVENUE_REPORT = gql`
-  query GetRevenueReport($startDate: String!, $endDate: String!, $doctorId: ID) {
-    getRevenueReport(startDate: $startDate, endDate: $endDate, doctorId: $doctorId) {
+  query GetRevenueReport($startDate: String!, $endDate: String!) {
+    getRevenueReport(startDate: $startDate, endDate: $endDate) {
       doctorId
       doctorName
-      totalRevenue
       totalPatients
+      totalRevenue
     }
   }
 `;
@@ -52,6 +67,7 @@ const GET_REVENUE_REPORT = gql`
 const CashierDashboard = () => {
   const { loading: loadingDoctors, error: errorDoctors, data: doctorsData } = useQuery(GET_DOCTORS);
   const [fetchCommissionStatement, { loading: loadingStatement, data: statementData }] = useLazyQuery(GET_COMMISSION_STATEMENT);
+  const [fetchGeneralReport, { loading: loadingGeneral, data: generalData }] = useLazyQuery(GET_GENERAL_REPORT);
   const [fetchRevenueReport, { loading: loadingRevenue, data: revenueData }] = useLazyQuery(GET_REVENUE_REPORT);
   const [registerPayment] = useMutation(REGISTER_PAYMENT);
 
@@ -77,6 +93,7 @@ const CashierDashboard = () => {
             amountPaid: parseFloat(amountPaid),
             paymentMethod,
             reference,
+            paymentDate,
           },
         },
       });
@@ -95,17 +112,22 @@ const CashierDashboard = () => {
       return;
     }
 
-    fetchCommissionStatement({
-      variables: {
-        startDate,
-        endDate,
-        doctorId: selectedDoctor || null,
-      },
-    });
-  };
-
-  const setTodayAsPaymentDate = () => {
-    setPaymentDate(new Date().toISOString().split("T")[0]);
+    if (selectedDoctor) {
+      fetchCommissionStatement({
+        variables: {
+          startDate,
+          endDate,
+          doctorId: selectedDoctor,
+        },
+      });
+    } else {
+      fetchGeneralReport({
+        variables: {
+          startDate,
+          endDate,
+        },
+      });
+    }
   };
 
   const handleFetchRevenueReport = () => {
@@ -113,14 +135,17 @@ const CashierDashboard = () => {
       alert("Por favor seleccione un rango de fechas.");
       return;
     }
-  
+
     fetchRevenueReport({
       variables: {
         startDate,
         endDate,
-        doctorId: selectedDoctor || null,
       },
     });
+  };
+
+  const setTodayAsPaymentDate = () => {
+    setPaymentDate(new Date().toISOString().split("T")[0]);
   };
 
   if (loadingDoctors) return <p>Cargando lista de médicos...</p>;
@@ -132,10 +157,10 @@ const CashierDashboard = () => {
 
       <h3>Seleccionar Médico</h3>
       <select
-        value={selectedDoctor || ""}
+        value={selectedDoctor}
         onChange={(e) => setSelectedDoctor(e.target.value)}
       >
-        <option value="">Seleccione un médico</option>
+        <option value="">Todos los médicos</option>
         {doctorsData.getDoctors.map((doctor) => (
           <option key={doctor.id} value={doctor.id}>
             {doctor.name} - {doctor.specialty}
@@ -202,29 +227,13 @@ const CashierDashboard = () => {
           onChange={(e) => setEndDate(e.target.value)}
         />
       </label>
-      <label>
-        Médico (opcional):
-        <select
-          value={selectedDoctor || ""}
-          onChange={(e) => setSelectedDoctor(e.target.value)}
-        >
-          <option value="">Todos los médicos</option>
-          {doctorsData.getDoctors.map((doctor) => (
-            <option key={doctor.id} value={doctor.id}>
-              {doctor.name} - {doctor.specialty}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button onClick={handleFetchStatement}>
-        Generar Estado
-      </button>
+      <button onClick={handleFetchStatement}>Generar Estado</button>
 
       {loadingStatement && <p>Cargando estado de comisión...</p>}
-      {statementData && statementData.getCommissionStatement.length > 0 ? (
+      {statementData && (
         <div>
-          {statementData.getCommissionStatement.map((statement, index) => (
-            <div key={index}>
+          {statementData.getCommissionStatement?.map((statement) => (
+            <div key={statement.doctorId}>
               <h4>Estado de Comisión - {statement.doctorName}</h4>
               <p><strong>Total Ingresos:</strong> ${statement.totalRevenue.toFixed(2)}</p>
               <p><strong>Tasa de Comisión:</strong> {statement.commissionPercentage}%</p>
@@ -232,8 +241,23 @@ const CashierDashboard = () => {
             </div>
           ))}
         </div>
-      ) : (
-        statementData && <p>No se encontraron datos en el rango de fechas seleccionado.</p>
+      )}
+
+      {loadingGeneral && <p>Cargando informe general...</p>}
+      {generalData && generalData.getGeneralReport && (
+        <div>
+          <h3>Informe General</h3>
+          <p><strong>Total Pacientes:</strong> {generalData.getGeneralReport.totalPatients}</p>
+          <p><strong>Total Recaudado:</strong> ${generalData.getGeneralReport.totalRevenue.toFixed(2)}</p>
+          <h4>Detalles por Médico:</h4>
+          {generalData.getGeneralReport.doctorReports.map((report) => (
+            <div key={report.doctorId}>
+              <p><strong>Médico:</strong> {report.doctorName}</p>
+              <p>Total Pacientes: {report.totalPatients}</p>
+              <p>Total Recaudado: ${report.totalRevenue.toFixed(2)}</p>
+            </div>
+          ))}
+        </div>
       )}
 
       <h3>Informe de Recaudación</h3>
@@ -270,15 +294,15 @@ const CashierDashboard = () => {
       <button onClick={handleFetchRevenueReport}>Generar Informe</button>
 
       {loadingRevenue && <p>Cargando informe de recaudación...</p>}
-      {revenueData && revenueData.getRevenueReport && (
+      {revenueData && (
         <div>
           <h4>Recaudación</h4>
           <ul>
-            {revenueData.getRevenueReport.map((doctor) => (
-              <li key={doctor.doctorId}>
-                <strong>{doctor.doctorName}</strong>
-                <p>Total Pacientes: {doctor.totalPatients}</p>
-                <p>Total Recaudado: ${doctor.totalRevenue.toFixed(2)}</p>
+            {revenueData.getRevenueReport.map((report) => (
+              <li key={report.doctorId}>
+                <strong>{report.doctorName}</strong>
+                <p>Total Pacientes: {report.totalPatients}</p>
+                <p>Total Recaudado: ${report.totalRevenue.toFixed(2)}</p>
               </li>
             ))}
           </ul>

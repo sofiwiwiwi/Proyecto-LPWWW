@@ -52,16 +52,15 @@ const agendaResolver = {
       const start = new Date(startDate);
       const end = new Date(endDate);
     
-      // Fetch all doctors
       const doctors = await Doctor.find();
     
       const report = doctors.map((doctor) => {
-        // Filter payments within the date range
+
         const payments = doctor.payments.filter(
           (payment) => payment.paymentDate >= start && payment.paymentDate <= end
         );
     
-        // Calculate total revenue and patient count
+
         const totalRevenue = payments.reduce((sum, payment) => sum + payment.amountPaid, 0);
         const totalPatients = payments.length;
     
@@ -113,43 +112,37 @@ const agendaResolver = {
       const start = new Date(startDate);
       const end = new Date(endDate);
 
-      const agendas = await Agenda.find({
-        date: { $gte: start, $lte: end },
-      });
+      const doctors = await Doctor.find();
 
       let totalRevenue = 0;
       let totalPatients = 0;
-      const doctorReports = {};
 
-      for (const agenda of agendas) {
-        const doctor = await Doctor.findById(agenda.doctorId);
-        if (!doctor) continue;
+      const doctorReports = doctors.map((doctor) => {
+        const payments = doctor.payments.filter(
+          (payment) => payment.paymentDate >= start && payment.paymentDate <= end
+        );
 
-        if (!doctorReports[doctor.id]) {
-          doctorReports[doctor.id] = {
-            doctorId: doctor.id,
-            doctorName: doctor.name,
-            totalPatients: 0,
-            totalRevenue: 0,
-          };
-        }
+        const doctorTotalRevenue = payments.reduce(
+          (sum, payment) => sum + payment.amountPaid,
+          0
+        );
+        const doctorTotalPatients = payments.length;
 
-        for (const slot of agenda.timeSlots) {
-          if (slot.isAttended) {
-            const revenue = 50;
-            totalRevenue += revenue;
-            totalPatients += 1;
+        totalRevenue += doctorTotalRevenue;
+        totalPatients += doctorTotalPatients;
 
-            doctorReports[doctor.id].totalPatients += 1;
-            doctorReports[doctor.id].totalRevenue += revenue;
-          }
-        }
-      }
+        return {
+          doctorId: doctor._id,
+          doctorName: doctor.name,
+          totalPatients: doctorTotalPatients,
+          totalRevenue: doctorTotalRevenue,
+        };
+      });
 
       return {
         totalRevenue,
         totalPatients,
-        doctorReports: Object.values(doctorReports),
+        doctorReports,
       };
     },
     getPatientAppointments: async (_, { patientId }) => {

@@ -3,9 +3,9 @@ import React from "react";
 const NavBar = ({ user, logout, isLoggedIn }) => {
   return (
 
-    <nav class="navbar">
-    <div class="navbar-container">
-      <div class="navbar-brand">
+    <nav className="navbar">
+    <div className="navbar-container">
+      <div className="navbar-brand">
         <img src="cardiogram.png" alt="Logo" width="32" height="32" />
         <span>Centro Médico Galenos</span>
       </div>
