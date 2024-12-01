@@ -141,7 +141,7 @@ const Register = () => {
             {error && <Alert variant="danger" className="mt-3 alert-danger">Error: {error.message}</Alert>}
 
             <div className="text-center mt-3">
-              <Button variant="link" style={{ fontSize: '1rem', color: 'white' }} onClick={() => navigate("/login")}>
+              <Button variant="link" style={{ fontSize: '1rem', color: 'white' }} onClick={() => navigate("/")}>
                 ¿Ya tienes cuenta? Inicia sesión aquí
               </Button>
             </div>

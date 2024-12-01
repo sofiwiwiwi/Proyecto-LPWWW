@@ -44,7 +44,7 @@ const App = () => {
         <NavBar user={user} logout={logout} isLoggedIn={!!token} />
         <h1>Centro Médico Galenos</h1>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
       </div>
