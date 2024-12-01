@@ -151,6 +151,10 @@ const agendaResolver = {
 
       for (const agenda of agendas) {
         const doctor = await Doctor.findById(agenda.doctorId);
+        if (!doctor) {
+          console.warn(`Doctor no encontrado para doctorId: ${agenda.doctorId}`);
+          continue;
+        }
         const reservedSlots = agenda.timeSlots.filter(
           (slot) => 
             slot.patientId && 

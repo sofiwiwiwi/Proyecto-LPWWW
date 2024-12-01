@@ -88,14 +88,29 @@ const PatientDashboard = ({ patientId }) => {
   const [showModal, setShowModal] = useState(false);
   const [patientAppointments, setPatientAppointments] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
-  const [startDate, setStartDate] = useState("2024-01-01");
-  const [endDate, setEndDate] = useState("2024-01-07");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const handleSelectDoctor = (doctorId) => {
     setSelectedDoctor(doctorId);
     fetchAgenda({
       variables: {
         doctorId,
+        startDate,
+        endDate,
+      },
+    });
+  };
+
+  const handleFetchAgenda = () => {
+    if (!startDate || !endDate) {
+      alert("Por favor selecciona un rango de fechas válido.");
+      return;
+    }
+
+    fetchAgenda({
+      variables: {
+        doctorId: selectedDoctor,
         startDate,
         endDate,
       },
@@ -248,41 +263,59 @@ const PatientDashboard = ({ patientId }) => {
                 className="btn btn-primary btn-sm"
                 onClick={() => handleSelectDoctor(doctor.id)}
               >
-                Ver Agenda
+                Seleccionar doctor
               </button>
             </li>
           ))}
         </ul>
 
-        {agendaLoading && <p>Cargando agenda...</p>}
-        {agendaData && agendaData.getAgenda && (
-          <div className="mt-4">
-            <h3 className="text-center mb-3">Agenda del Doctor</h3>
-            <ul className="list-group">
-              {agendaData.getAgenda.map((day) => (
-                <li key={day.date} className="list-group-item">
-                  <strong>{formatDate(day.date)}</strong>
-                  <ul className="list-group mt-2">
-                    {day.timeSlots.map((slot, index) => (
-                      <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                        {slot.startTime} - {slot.endTime}{" "}
-                        {slot.isReserved ? (
-                          <span className="badge bg-danger">Reservado</span>
-                        ) : (
-                          <button
-                            className="btn btn-success btn-sm"
-                            onClick={() => handleBookTimeSlot(day.date, slot.startTime, slot.endTime)}
-                          >
-                            Reservar
-                          </button>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {selectedDoctor && (
+          <>
+            <div className="mt-4">
+              <h4>Seleccionar rango de fechas</h4>
+              <label>
+                Fecha de inicio:
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              </label>
+              <label>
+                Fecha de término:
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              </label>
+              <button className="btn btn-light" onClick={handleFetchAgenda}>Consultar agenda</button>
+            </div>
+
+
+            {agendaLoading && <p>Cargando agenda...</p>}
+            {agendaData && agendaData.getAgenda && (
+              <div className="mt-4">
+                <h3 className="text-center mb-3">Agenda del Doctor</h3>
+                <ul className="list-group">
+                  {agendaData.getAgenda.map((day) => (
+                    <li key={day.date} className="list-group-item">
+                      <strong>{formatDate(day.date)}</strong>
+                      <ul className="list-group mt-2">
+                        {day.timeSlots.map((slot, index) => (
+                          <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                            {slot.startTime} - {slot.endTime}{" "}
+                            {slot.isReserved ? (
+                              <span className="badge bg-danger">Reservado</span>
+                            ) : (
+                              <button
+                                className="btn btn-success btn-sm"
+                                onClick={() => handleBookTimeSlot(day.date, slot.startTime, slot.endTime)}
+                              >
+                                Reservar
+                              </button>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

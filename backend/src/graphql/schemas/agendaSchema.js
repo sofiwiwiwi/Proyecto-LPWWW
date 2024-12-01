@@ -6,6 +6,7 @@ const agendaSchema = gql`
     endTime: String!
     isReserved: Boolean!
     patientId: ID
+    isAttended: Boolean!
   }
 
   type Agenda {

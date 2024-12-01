@@ -83,7 +83,7 @@ const DoctorDashboard = ({ doctorId }) => {
         {data.getWaitingPatients.length > 0 ? (
           <ul className="list-group">
             {data.getWaitingPatients.map((appointment) => (
-              <li key={appointment.patientId} className="list-group-item d-flex justify-content-between align-items-center">
+              <li key={`${appointment.patientId}-${appointment.date}-${appointment.startTime}`} className="list-group-item d-flex justify-content-between align-items-center">
                 <strong>Paciente:</strong> {appointment.patientName} <br />
                 <strong>Fecha:</strong> {formatDate(appointment.date)} <br />
                 <strong>Hora:</strong> {appointment.startTime} - {appointment.endTime} <br />

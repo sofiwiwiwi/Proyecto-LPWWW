@@ -21,6 +21,7 @@ const GET_DOCTOR_AGENDAS = gql`
         startTime
         endTime
         isReserved
+        isAttended
       }
     }
   }
@@ -82,19 +83,48 @@ const REMOVE_TIME_SLOT = gql`
   }
 `;
 
+const CANCEL_TIME_SLOT = gql`
+  mutation CancelTimeSlot($input: CancelTimeSlotInput!) {
+    cancelTimeSlot(input: $input) {
+      id
+      doctorId
+      date
+      timeSlots {
+        startTime
+        endTime
+        isReserved
+      }
+    }
+  }
+`;
+
+const GET_WAITING_PATIENTS = gql`
+  query GetWaitingPatients($doctorId: ID!) {
+    getWaitingPatients(doctorId: $doctorId) {
+      patientId
+      patientName
+      startTime
+      endTime
+      date
+    }
+  }
+`;
+
 const SecretaryDashboard = () => {
   const { user } = useAuth();
   const { loading: loadingDoctors, error: errorDoctors, data: doctorsData } = useQuery(GET_DOCTORS);
   const [fetchAgenda, { loading: loadingAgenda, data: agendaData }] = useLazyQuery(GET_DOCTOR_AGENDAS);
+  const [fetchPatients, { loading: loadingPatients, data: patientsData }] = useLazyQuery(GET_WAITING_PATIENTS);
   const [addAvailability] = useMutation(ADD_AVAILABILITY);
   const [generateAgenda] = useMutation(GENERATE_AGENDA);
   const [addTimeSlot] = useMutation(ADD_TIME_SLOT);
   const [removeTimeSlot] = useMutation(REMOVE_TIME_SLOT);
+  const [cancelTimeSlot] = useMutation(CANCEL_TIME_SLOT);
 
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [availability, setAvailability] = useState([]);
-  const [startDate, setStartDate] = useState("2024-01-01");
-  const [endDate, setEndDate] = useState("2024-01-07");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const handleSelectDoctor = (id) => {
     setSelectedDoctor(id);
@@ -127,6 +157,14 @@ const SecretaryDashboard = () => {
     } catch (err) {
       alert("Error al generar la agenda: " + err.message);
     }
+  };
+
+  const handleFetchPatients = () => {
+    fetchPatients({
+      variables: {
+        doctorId: selectedDoctor,
+      },
+    });
   };
 
   const handleFetchAgenda = () => {
@@ -173,18 +211,40 @@ const SecretaryDashboard = () => {
     setAvailability([...availability, { day: "", startTime: "", endTime: "" }]);
   };
 
+  const handleCancelReservation = async (selectedDoctor, day, startTime, endTime) => {
+    try {
+      const formattedDate = new Date(Number(day)).toISOString().split("T")[0];
+      await cancelTimeSlot({
+        variables: {
+          input: {
+            doctorId: selectedDoctor,
+            date: formattedDate,
+            startTime: startTime,
+            endTime: endTime,
+          },
+        },
+      });
+      alert("Reserva cancelada existosamente.")
+    }
+    catch (error) {
+      console.error("Error cancelando hora:", error);
+      alert("Error al cancelar la reserva");
+    }
+  };
+
   if (loadingDoctors) return <p>Cargando lista de médicos...</p>;
   if (errorDoctors) return <p>Error al cargar los médicos: {errorDoctors.message}</p>;
 
   return (
-    <div className="container">
+    <div className="d-flex justify-content-center align-items-center min-vh-100 text-white">
+    <div className="container p-4 shadow-lg rounded">
       <h2>Panel de la Secretaria: {user?.name}</h2>
       <h3>Lista de Médicos</h3>
       <ul>
         {doctorsData.getDoctors.map((doctor) => (
           <li key={doctor.id}>
             <strong>{doctor.name}</strong> - {doctor.specialty}
-            <button onClick={() => handleSelectDoctor(doctor.id)}>
+            <button className="btn btn-primary" onClick={() => handleSelectDoctor(doctor.id)}>
               Seleccionar
             </button>
           </li>
@@ -195,7 +255,7 @@ const SecretaryDashboard = () => {
         <>
           <div>
             <h3>Agregar Disponibilidad</h3>
-            <button onClick={addNewSlot}>Agregar Nuevo Horario</button>
+            <button className="btn btn-primary" onClick={addNewSlot}>Agregar Nuevo Horario</button>
             {availability.map((slot, index) => (
               <div key={index}>
                 <select
@@ -241,7 +301,7 @@ const SecretaryDashboard = () => {
                 />
               </div>
             ))}
-            <button onClick={handleAddAvailability}>Guardar Disponibilidad</button>
+            <button className="btn btn-success" onClick={handleAddAvailability}>Guardar Disponibilidad</button>
           </div>
 
           <div>
@@ -262,12 +322,28 @@ const SecretaryDashboard = () => {
                 onChange={(e) => setEndDate(e.target.value)}
               />
             </label>
-            <button onClick={handleGenerateAgenda}>Generar Agenda</button>
+            <button className="btn btn-primary"onClick={handleGenerateAgenda}>Generar Agenda</button>
           </div>
 
           <div>
             <h3>Consultar Agenda</h3>
-            <button onClick={handleFetchAgenda}>Consultar Agenda</button>
+            <label>
+              Fecha de inicio:
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </label>
+            <label>
+              Fecha de término:
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </label>
+            <button className="btn btn-primary" onClick={handleFetchAgenda}>Consultar Agenda</button>
             {loadingAgenda && <p>Cargando agenda...</p>}
             {agendaData && agendaData.getAgenda && (
               <ul>
@@ -279,20 +355,33 @@ const SecretaryDashboard = () => {
                         <li key={index}>
                           {slot.startTime} - {slot.endTime}{" "}
                           {slot.isReserved ? (
-                            <span>(Reservado)</span>
-                          ) : (
-                            <button
-                              onClick={() =>
-                                handleRemoveTimeSlot(day.id, slot.startTime, slot.endTime)
-                              }
-                            >
-                              Eliminar
-                            </button>
-                          )}
+                              slot.isAttended ? (
+                                <span>(Ya entendida)</span>
+                              ) : (
+                                <button
+                                  className="btn btn-danger"
+                                  onClick={() =>
+                                    handleCancelReservation(selectedDoctor, day.date, slot.startTime, slot.endTime)
+                                  }
+                                >
+                                  Eliminar reserva
+                                </button>
+                              )
+                            ) : (
+                              <button
+                                className="btn btn-danger"
+                                onClick={() =>
+                                  handleRemoveTimeSlot(day.id, slot.startTime, slot.endTime)
+                                }
+                              >
+                                Eliminar horario
+                              </button>
+                            )}
                         </li>
                       ))}
                     </ul>
                     <button
+                      className="btn btn-light"
                       onClick={() => handleAddTimeSlot(day.id, "10:00", "10:30")}
                     >
                       Añadir Horario (10:00-10:30)
@@ -302,8 +391,30 @@ const SecretaryDashboard = () => {
               </ul>
             )}
           </div>
+
+          <div>
+            <h3>Pacientes en espera</h3>
+            <button className="btn btn-primary" onClick={handleFetchPatients}>Pacientes en espera</button>
+              {loadingPatients && <p>Cargando pacientes...</p>}
+              {patientsData?.getWaitingPatients.length > 0 ? (
+                <ul className="list-group">
+                  {patientsData.getWaitingPatients.map((appointment) => (
+                    <li key={`${appointment.patientId}-${appointment.date}-${appointment.startTime}`}>
+                      <span><strong>Paciente:</strong> {appointment.patientName}</span>
+                      <span><strong> - Fecha:</strong> {new Date(Number(appointment.date)).toLocaleDateString('es-ES')}</span>
+                      <span>
+                        <strong> - Hora:</strong> {appointment.startTime} - {appointment.endTime}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No hay pacientes en espera.</p>
+              )}
+          </div>
         </>
       )}
+    </div>
     </div>
   );
 };
