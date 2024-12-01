@@ -37,6 +37,14 @@ const agendaSchema = gql`
     endTime: String!
     date: String!
   }
+
+  type Appointment {
+    date: String!
+    startTime: String!
+    endTime: String!
+    doctorId: ID!
+    doctorName: String!
+  }
   
   type GeneralReport {
     totalRevenue: Float!
@@ -76,6 +84,7 @@ const agendaSchema = gql`
     getRevenueReport(startDate: String!, endDate: String!, doctorId: ID): [RevenueReport!]!
     getCommissionStatement(startDate: String!, endDate: String!, doctorId: ID): [CommissionStatement!]!
     getGeneralReport(startDate: String!, endDate: String!): GeneralReport!
+    getPatientAppointments(patientId: ID!): [Appointment!]!
   }
 
   type Mutation {

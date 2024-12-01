@@ -61,8 +61,7 @@ const App = () => {
     <div>
       <NavBar user={user} logout={logout} isLoggedIn={!!token} />
       <h1>Centro Médico Galenos</h1>
-      <button onClick={logout}>Cerrar Sesión</button>
-      {user.role === "Paciente" && <PatientDashboard />}
+      {user.role === "Paciente" && <PatientDashboard patientId={user.id} />}
       {user.role === "Médico" && doctorId && <DoctorDashboard doctorId={doctorId} />}
     </div>
   );

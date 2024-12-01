@@ -166,6 +166,27 @@ const agendaResolver = {
         doctorReports: Object.values(doctorReports),
       };
     },
+    getPatientAppointments: async (_, { patientId }) => {
+      const agendas = await Agenda.find({"timeSlots.patientId": patientId, });
+      const appointments = [];
+
+      for (const agenda of agendas) {
+        const doctor = await Doctor.findById(agenda.doctorId);
+        const reservedSlots = agenda.timeSlots.filter(
+          (slot) => slot.patientId && slot.patientId.toString() === patientId
+        );
+        for (const slot of reservedSlots) {
+          appointments.push({
+            date: agenda.date,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            doctorId: agenda.doctorId,
+            doctorName: doctor.name,
+          });
+        }
+        return appointments;
+      }
+    },
   },
   Mutation: {
     generateAgenda: async (_, { doctorId, startDate, endDate }) => {
@@ -288,7 +309,7 @@ const agendaResolver = {
       await agenda.save();
       return agenda;
     },
-    cancelTimeSlot: async (_, { input }, { user }) => {
+    cancelTimeSlot: async (_, { input }) => {
       const { doctorId, date, startTime, endTime } = input;
 
       const agenda = await Agenda.findOne({
@@ -305,9 +326,9 @@ const agendaResolver = {
       );
       if (!slot) throw new Error("El horario no está reservado.");
 
-      if (user.role === "Paciente" && slot.patientId.toString() !== user.id) {
-        throw new Error("No autorizado para cancelar este horario.");
-      }
+      // if (user.role === "Paciente" && slot.patientId.toString() !== user.id) {
+      //   throw new Error("No autorizado para cancelar este horario.");
+      // }
 
       slot.isReserved = false;
       slot.patientId = null;

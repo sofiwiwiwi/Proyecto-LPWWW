@@ -139,7 +139,7 @@ button:focus-visible {
   border-radius: 6px;                       /* Añadiendo bordes redondeados */
 }
 
-@media (max-width: 500px) {
+@media (max-width: 574px) {
   .logout-text {
     display: none; /* Oculta el texto en pantallas pequeñas */
   }

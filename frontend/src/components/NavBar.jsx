@@ -16,7 +16,7 @@ const NavBar = ({ user, logout, isLoggedIn }) => {
           </span>
           <button class="logout-button" onClick={logout}>
             <span className="logout-text">Cerrar Sesión</span>
-            <span className="logout-icon">✖</span>
+            <span className="logout-icon">X</span>
           </button>
         </div>}
     </div>
