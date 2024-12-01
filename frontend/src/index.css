@@ -11,6 +11,14 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --celestial-blue: #3E92CC;
+  --lapis-lazuli: #2a628f;
+  --prussian-blue: #13293d;
+  --prussian-blue2: #16324f;
+  --indigo-dye: #18435a;
+  
+
 }
 
 a {
@@ -23,7 +31,7 @@ a:hover {
 }
 
 body {
-  background-color:  #13293d;
+  background-color:  var(--prussian-blue);
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -117,6 +125,18 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+.container {
+  background-color: var(--celestial-blue);
+  color: black;
+}
+
+.list-group-item {
+  background-color: var(--indigo-dye);  /* Usando la variable para el fondo */
+  color: white;                             /* Cambiando el color del texto */
+  border: 1px solid var(--lapis-lazuli);    /* Usando una variable para el borde */
+  border-radius: 6px;                       /* Añadiendo bordes redondeados */
 }
 
 @media (max-width: 500px) {

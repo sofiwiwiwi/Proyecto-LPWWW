@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { gql, useQuery, useLazyQuery, useMutation } from "@apollo/client";
+import 'bootstrap/dist/css/bootstrap.min.css'; // Asegúrate de que Bootstrap esté importado
 
 const GET_DOCTORS = gql`
   query GetDoctors {
@@ -56,6 +57,7 @@ const formatDate = (date) => {
   });
 };
 
+
 const PatientDashboard = () => {
   const { loading, error, data } = useQuery(GET_DOCTORS);
   const [fetchAgenda, { loading: agendaLoading, data: agendaData }] = useLazyQuery(GET_AGENDA);
@@ -78,7 +80,6 @@ const PatientDashboard = () => {
 
   const handleBookTimeSlot = async (date, startTime, endTime) => {
     try {
-      // Format the date as a string for the backend
       const formattedDate = new Date(Number(date)).toISOString().split("T")[0];
       await bookTimeSlot({
         variables: {
@@ -91,7 +92,7 @@ const PatientDashboard = () => {
         },
       });
       alert("Hora reservada exitosamente.");
-      fetchAgenda({ variables: { doctorId: selectedDoctor, startDate, endDate } }); // Refresh agenda
+      fetchAgenda({ variables: { doctorId: selectedDoctor, startDate, endDate } });
     } catch (err) {
       alert(`Error al reservar: ${err.message}`);
     }
@@ -101,47 +102,55 @@ const PatientDashboard = () => {
   if (error) return <p>Error al cargar doctores: {error.message}</p>;
 
   return (
-    <div>
-      <h2>Panel del Paciente</h2>
-      <h3>Lista de Doctores</h3>
-      <ul>
-        {data.getDoctors.map((doctor) => (
-          <li key={doctor.id}>
-            <strong>{doctor.name}</strong> - {doctor.specialty}
-            <button onClick={() => handleSelectDoctor(doctor.id)}>Ver Agenda</button>
-          </li>
-        ))}
-      </ul>
+    <div className="d-flex justify-content-center align-items-center min-vh-100 text-white">
+      <div className="container p-4 shadow-lg rounded">
+        <h2 className="text-center mb-4">Panel del Paciente</h2>
+        <h3 className="text-center mb-3">Lista de Doctores</h3>
+        <ul className="list-group">
+          {data.getDoctors.map((doctor) => (
+            <li key={doctor.id} className="list-group-item d-flex justify-content-between align-items-center">
+              <strong>{doctor.name}</strong> - {doctor.specialty}
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => handleSelectDoctor(doctor.id)}
+              >
+                Ver Agenda
+              </button>
+            </li>
+          ))}
+        </ul>
 
-      {agendaLoading && <p>Cargando agenda...</p>}
-      {agendaData && agendaData.getAgenda && (
-        <div>
-          <h3>Agenda del Doctor</h3>
-          <ul>
-            {agendaData.getAgenda.map((day) => (
-              <li key={day.date}>
-                <strong>{formatDate(day.date)}</strong>
-                <ul>
-                  {day.timeSlots.map((slot, index) => (
-                    <li key={index}>
-                      {slot.startTime} - {slot.endTime}{" "}
-                      {slot.isReserved ? (
-                        <span>(Reservado)</span>
-                      ) : (
-                        <button
-                          onClick={() => handleBookTimeSlot(day.date, slot.startTime, slot.endTime)}
-                        >
-                          Reservar
-                        </button>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        {agendaLoading && <p>Cargando agenda...</p>}
+        {agendaData && agendaData.getAgenda && (
+          <div className="mt-4">
+            <h3 className="text-center mb-3">Agenda del Doctor</h3>
+            <ul className="list-group">
+              {agendaData.getAgenda.map((day) => (
+                <li key={day.date} className="list-group-item">
+                  <strong>{formatDate(day.date)}</strong>
+                  <ul className="list-group mt-2">
+                    {day.timeSlots.map((slot, index) => (
+                      <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                        {slot.startTime} - {slot.endTime}{" "}
+                        {slot.isReserved ? (
+                          <span className="badge bg-danger">Reservado</span>
+                        ) : (
+                          <button
+                            className="btn btn-success btn-sm"
+                            onClick={() => handleBookTimeSlot(day.date, slot.startTime, slot.endTime)}
+                          >
+                            Reservar
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
