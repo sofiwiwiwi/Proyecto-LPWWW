@@ -75,7 +75,7 @@ const Login = () => {
 
             {/* Botón para redirigir al registro */}
             <div className="text-center mt-3">
-              <Button variant="link" onClick={() => navigate("/register")}>
+              <Button variant="link" style={{ fontSize: '1rem', color: 'white' }} onClick={() => navigate("/register")}>
                 ¿No tienes una cuenta? Regístrate aquí
               </Button>
             </div>

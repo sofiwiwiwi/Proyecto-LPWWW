@@ -131,7 +131,7 @@ const Register = () => {
                 </Form.Group>
               )}
 
-              <Button variant="primary" type="submit" block disabled={loading}>
+              <Button variant="primary" type="submit" className="mt-3" block disabled={loading}>
                 {loading ? "Registrando..." : "Registrarse"}
               </Button>
             </Form>
@@ -139,7 +139,7 @@ const Register = () => {
             {error && <Alert variant="danger" className="mt-3 alert-danger">Error: {error.message}</Alert>}
 
             <div className="text-center mt-3">
-              <Button variant="link" onClick={() => navigate("/login")}>
+              <Button variant="link" style={{ fontSize: '1rem', color: 'white' }} onClick={() => navigate("/login")}>
                 ¿Ya tienes cuenta? Inicia sesión aquí
               </Button>
             </div>
