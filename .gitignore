@@ -1,5 +1,4 @@
 /backend/node_modules
 backend/.env
 .DS_Store
-frontend/.vite/deps/_metadata.json
-frontend/.vite/deps/package.json
+frontend/.vite/

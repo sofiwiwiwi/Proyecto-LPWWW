@@ -7,6 +7,7 @@ import Register from "./components/Register";
 import PatientDashboard from "./components/PatientDashboard";
 import DoctorDashboard from "./components/DoctorDashboard";
 import SecretaryDashboard from "./components/SecretaryDashboard";
+import CashierDashboard from "./components/CashierDashboard";
 import NavBar from "./components/NavBar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -65,6 +66,7 @@ const App = () => {
       {user.role === "Paciente" && <PatientDashboard patientId={user.id} />}
       {user.role === "Médico" && doctorId && <DoctorDashboard doctorId={doctorId} />}
       {user.role === "Secretaria" && <SecretaryDashboard/>}
+      {user.role === "Cajero" && <CashierDashboard/>}
     </div>
   );
 };

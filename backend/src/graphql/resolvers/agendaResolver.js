@@ -48,80 +48,66 @@ const agendaResolver = {
 
       return waitingPatients;
     },
-    getRevenueReport: async (_, { startDate, endDate, doctorId }) => {
+    getRevenueReport: async (_, { startDate, endDate }) => {
       const start = new Date(startDate);
       const end = new Date(endDate);
-
-      const query = {
-        date: { $gte: start, $lte: end },
-      };
-      if (doctorId) query.doctorId = doctorId;
-
-      const agendas = await Agenda.find(query);
-
-      const report = {};
-      for (const agenda of agendas) {
-        const doctor = await Doctor.findById(agenda.doctorId);
-        if (!doctor) continue;
-
-        if (!report[doctor.id]) {
-          report[doctor.id] = {
-            doctorId: doctor.id,
-            doctorName: doctor.name,
-            totalPatients: 0,
-            totalRevenue: 0,
-          };
-        }
-
-        for (const slot of agenda.timeSlots) {
-          if (slot.isAttended) {
-            report[doctor.id].totalPatients += 1;
-            report[doctor.id].totalRevenue += 50; // Replace 50 with actual fee logic
-          }
-        }
-      }
-
-      return Object.values(report);
+    
+      // Fetch all doctors
+      const doctors = await Doctor.find();
+    
+      const report = doctors.map((doctor) => {
+        // Filter payments within the date range
+        const payments = doctor.payments.filter(
+          (payment) => payment.paymentDate >= start && payment.paymentDate <= end
+        );
+    
+        // Calculate total revenue and patient count
+        const totalRevenue = payments.reduce((sum, payment) => sum + payment.amountPaid, 0);
+        const totalPatients = payments.length;
+    
+        return {
+          doctorId: doctor._id,
+          doctorName: doctor.name,
+          totalPatients,
+          totalRevenue,
+        };
+      });
+    
+      return report;
     },
     getCommissionStatement: async (_, { startDate, endDate, doctorId }) => {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
+      try {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+    
+        const doctor = await Doctor.findById(doctorId).populate('payments');
+    
+        if (!doctor) {
+          throw new Error('Doctor not found');
+        }
 
-      const query = {
-        date: { $gte: start, $lte: end },
-      };
-      if (doctorId) query.doctorId = doctorId;
-
-      const agendas = await Agenda.find(query);
-      const report = {};
-      for (const agenda of agendas) {
-        const doctor = await Doctor.findById(agenda.doctorId);
-        if (!doctor) continue;
-
-        if (!report[doctor.id]) {
-          report[doctor.id] = {
+        const relevantPayments = doctor.payments.filter((payment) => {
+          const paymentDate = new Date(payment.paymentDate);
+          return paymentDate >= start && paymentDate <= end;
+        });
+    
+        const totalRevenue = relevantPayments.reduce((sum, payment) => sum + payment.amountPaid, 0);
+        const commissionPercentage = 30; // Assuming a 30% commission rate
+        const commissionAmount = (totalRevenue * commissionPercentage) / 100;
+    
+        return [
+          {
             doctorId: doctor.id,
             doctorName: doctor.name,
-            totalRevenue: 0,
-          };
-        }
-
-        for (const slot of agenda.timeSlots) {
-          if (slot.isAttended) {
-            report[doctor.id].totalRevenue += 50;
-          }
-        }
+            totalRevenue,
+            commissionPercentage,
+            commissionAmount,
+          },
+        ];
+      } catch (error) {
+        console.error('Error fetching commission statement:', error);
+        throw new Error('Could not fetch commission statement');
       }
-
-      const statements = Object.values(report).map((entry) => ({
-        doctorId: entry.doctorId,
-        doctorName: entry.doctorName,
-        totalRevenue: entry.totalRevenue,
-        commissionPercentage: COMMISSION_PERCENTAGE,
-        commissionAmount: (entry.totalRevenue * COMMISSION_PERCENTAGE) / 100,
-      }));
-
-      return statements;
     },
     getGeneralReport: async (_, { startDate, endDate }) => {
       const start = new Date(startDate);
