@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { gql, useQuery, useLazyQuery, useMutation } from "@apollo/client";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const GET_DOCTORS = gql`
   query GetDoctors {
@@ -66,17 +66,11 @@ const CANCEL_TIME_SLOT = gql`
   }
 `;
 
-
 const formatDate = (date) => {
-  // Handle UNIX timestamp format
   const parsedDate = new Date(Number(date));
-  // console.log("Raw date value:", date);
-  // console.log("Parsed date:", parsedDate);
-
   if (isNaN(parsedDate.getTime())) {
     return "Fecha inválida";
   }
-
   return parsedDate.toLocaleDateString("es-ES", {
     weekday: "long",
     day: "numeric",
@@ -85,16 +79,14 @@ const formatDate = (date) => {
   });
 };
 
-
 const PatientDashboard = ({ patientId }) => {
   const { loading, error, data } = useQuery(GET_DOCTORS);
-  const [fetchAgenda, { loading: agendaLoading, data: agendaData }] = useLazyQuery(GET_AGENDA);
+  const [fetchAgenda, { loading: agendaLoading, data: agendaData, refetch: refetchAgenda }] = useLazyQuery(GET_AGENDA);
   const [bookTimeSlot] = useMutation(BOOK_TIME_SLOT);
+  const [cancelTimeSlot] = useMutation(CANCEL_TIME_SLOT);
 
   const [showModal, setShowModal] = useState(false);
   const [patientAppointments, setPatientAppointments] = useState([]);
-  const [cancelTimeSlot] = useMutation(CANCEL_TIME_SLOT)
-
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [startDate, setStartDate] = useState("2024-01-01");
   const [endDate, setEndDate] = useState("2024-01-07");
@@ -123,8 +115,30 @@ const PatientDashboard = ({ patientId }) => {
           },
         },
       });
+
       alert("Hora reservada exitosamente.");
-      fetchAgenda({ variables: { doctorId: selectedDoctor, startDate, endDate } });
+
+      if (agendaData) {
+        const updatedAgenda = {
+          ...agendaData,
+          getAgenda: agendaData.getAgenda.map((day) => {
+            if (day.date === date) {
+              return {
+                ...day,
+                timeSlots: day.timeSlots.map((slot) =>
+                  slot.startTime === startTime && slot.endTime === endTime
+                    ? { ...slot, isReserved: true }
+                    : slot
+                ),
+              };
+            }
+            return day;
+          }),
+        };
+        fetchAgenda({
+          variables: { doctorId: selectedDoctor, startDate, endDate }
+        })
+      }
     } catch (err) {
       alert(`Error al reservar: ${err.message}`);
     }
@@ -143,8 +157,8 @@ const PatientDashboard = ({ patientId }) => {
 
   const handleCancelReservation = async (appointment) => {
     try {
-      const formattedDate = new Date(Number(appointment.date)).toISOString().split("T")[0]
-      const { data } = await cancelTimeSlot({
+      const formattedDate = new Date(Number(appointment.date)).toISOString().split("T")[0];
+      await cancelTimeSlot({
         variables: {
           input: {
             doctorId: appointment.doctorId,
@@ -154,14 +168,25 @@ const PatientDashboard = ({ patientId }) => {
           },
         },
       });
+
+      // Update local appointments state
+      setPatientAppointments((prevAppointments) =>
+        prevAppointments.filter(
+          (appt) =>
+            !(
+              appt.date === appointment.date &&
+              appt.startTime === appointment.startTime &&
+              appt.endTime === appointment.endTime &&
+              appt.doctorId === appointment.doctorId
+            )
+        )
+      );
       alert("Se canceló su hora correctamente");
-      console.log("Updated Agenda:", data.cancelTimeSlot);
     } catch (error) {
       console.error("Error cancelando hora:", error);
       alert("Error cancelando hora", error);
     }
   };
-
 
   if (loading) return <p>Cargando doctores...</p>;
   if (error) return <p>Error al cargar doctores: {error.message}</p>;
@@ -194,7 +219,7 @@ const PatientDashboard = ({ patientId }) => {
                             <strong>Hora:</strong> {appointment.startTime} - {appointment.endTime} <br />
                             <strong>Médico:</strong> {appointment.doctorName || "N/A"}
                             <div >
-                              <button className="btn btn-danger" onClick={() => handleCancelReservation (appointment)}>Cancelar hora</button>
+                              <button className="btn btn-danger" onClick={() => handleCancelReservation(appointment)}>Cancelar hora</button>
                             </div>
                           </li>
                         ))
