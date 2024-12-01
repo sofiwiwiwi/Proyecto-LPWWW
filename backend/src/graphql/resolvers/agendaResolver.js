@@ -31,7 +31,7 @@ const agendaResolver = {
 
       for (const agenda of agendas) {
         for (const slot of agenda.timeSlots) {
-          if (slot.isReserved && slot.patientId) {
+          if (slot.isReserved && slot.patientId && !slot.isAttended) {
             const patient = await User.findById(slot.patientId); 
             if (patient) {
               waitingPatients.push({
@@ -173,7 +173,10 @@ const agendaResolver = {
       for (const agenda of agendas) {
         const doctor = await Doctor.findById(agenda.doctorId);
         const reservedSlots = agenda.timeSlots.filter(
-          (slot) => slot.patientId && slot.patientId.toString() === patientId
+          (slot) => 
+            slot.patientId && 
+            slot.patientId.toString() === patientId &&
+            !slot.isAttended
         );
         for (const slot of reservedSlots) {
           appointments.push({
@@ -336,11 +339,7 @@ const agendaResolver = {
       await agenda.save();
       return agenda;
     },
-    markPatientAttended: async (_, { input }, { user }) => {
-      if (!user || user.role !== "Médico") {
-        throw new Error("No autorizado.");
-      }
-
+    markPatientAttended: async (_, { input }) => {
       const { doctorId, date, startTime, endTime } = input;
 
       const agenda = await Agenda.findOne({
