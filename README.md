@@ -50,14 +50,14 @@ Todos estos usuarios tienen la constraseña "hola123"
 #### Requisitos
 
   - Node.js (v14 o superior)
-  - MongoDB (base de datos local, debe llamarse galenos)
+  - MongoDB 
   - NPM (instalado con Node.js)
 
 #### Instalar dependencias
 `npm install`
 
 #### Configurar variables de entorno en archivo .env
-El archivo `.env` debe estar en la carpeta `backend`
+El archivo `.env` debe estar en la carpeta `backend`. La base de datos se encuentra en la nube, y se accede con la URI de este archivo
 ```
 MONGO_URI=mongodb+srv://admin:jPw9tC*0MhSvQjD@galenos.mm0in.mongodb.net/galenos?retryWrites=true&w=majority&appName=Galenos
 PORT=4000
