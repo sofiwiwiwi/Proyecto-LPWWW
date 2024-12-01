@@ -59,7 +59,7 @@ Todos estos usuarios tienen la constraseña "hola123"
 #### Configurar variables de entorno en archivo .env
 El archivo `.env` debe estar en la carpeta `backend`
 ```
-MONGO_URI=mongodb://localhost:27017/galenos
+MONGO_URI=mongodb+srv://admin:jPw9tC*0MhSvQjD@galenos.mm0in.mongodb.net/galenos?retryWrites=true&w=majority&appName=Galenos
 PORT=4000
 JWT_SECRET=8jJhjDpQ%W9IhG3
 ```
