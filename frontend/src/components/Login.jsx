@@ -40,7 +40,7 @@ const Login = () => {
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+    <Container className="d-flex justify-content-center align-items-center" style={{ height: "100vh", backgroundColor: "transparent" }}>
       <Row className="w-100">
         <Col xs={12} md={6} lg={4} className="mx-auto">
           <div className="login-container">
