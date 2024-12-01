@@ -1,35 +1,41 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";  // Importa el hook useNavigate
 import { Form, Button, Alert, Container, Row, Col } from "react-bootstrap";
+import { gql, useMutation } from "@apollo/client";
 import { useAuth } from "../authContext";  // Asumiendo que tienes este hook para manejar el login
 import "./Login.css";
+
+const LOGIN_MUTATION = gql`
+  mutation Login($input: LoginInput!) {
+    login(input: $input) {
+      token
+      user {
+        id
+        name
+        email
+        role
+      }
+    }
+  }
+`;
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();  // Usamos el hook useNavigate para la redirección
+  const [loginMutation, { loading, error }] = useMutation(LOGIN_MUTATION);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    setLoading(true);
-    setError(null); // Limpiamos el error anterior
-
     try {
-      // Lógica para manejar el login
-      // Suponiendo que tienes una función `login` que autentica al usuario
-      const user = await login(email, password);
-
-      alert(`Bienvenido, ${user.name}`);
-      // Si el login es exitoso, redirige a la página principal (ajustar ruta según sea necesario)
-      navigate("/dashboard");  // O a la página a la que desees redirigir
+      const { data } = await loginMutation({
+        variables: { input: { email, password } },
+      });
+      login(data.login.token, data.login.user);
+      alert(`Bienvenido, ${data.login.user.name}`);
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      alert(`Error al iniciar sesión: ${err.message}`);
     }
   };
 
