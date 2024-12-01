@@ -187,8 +187,8 @@ const agendaResolver = {
             doctorName: doctor.name,
           });
         }
-        return appointments;
       }
+      return appointments;
     },
   },
   Mutation: {
