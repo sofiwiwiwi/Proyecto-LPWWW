@@ -6,6 +6,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import PatientDashboard from "./components/PatientDashboard";
 import DoctorDashboard from "./components/DoctorDashboard";
+import SecretaryDashboard from "./components/SecretaryDashboard";
 import NavBar from "./components/NavBar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -63,6 +64,7 @@ const App = () => {
       <h1>Centro Médico Galenos</h1>
       {user.role === "Paciente" && <PatientDashboard patientId={user.id} />}
       {user.role === "Médico" && doctorId && <DoctorDashboard doctorId={doctorId} />}
+      {user.role === "Secretaria" && <SecretaryDashboard/>}
     </div>
   );
 };

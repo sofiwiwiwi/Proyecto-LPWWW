@@ -115,6 +115,7 @@ const Register = () => {
                 >
                   <option value="Paciente">Paciente</option>
                   <option value="Médico">Médico</option>
+                  <option value="Secretaria">Secretaria</option>
                 </Form.Control>
               </Form.Group>
 
