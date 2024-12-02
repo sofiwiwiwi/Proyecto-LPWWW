@@ -23,6 +23,7 @@ La secretaria puede
 1. Agregar disponibilidad de cada médico
 2. Generar agenda de cada médico en base a un calendario creado anteriormente con feriados
 3. Consultrar agenda de cada médico y editar su disponibilidad
+4. Ver pacientes en espera de cada médico
 ##### Cajero
 El cajero puede
 1. Registrar pagos
