@@ -418,7 +418,7 @@ const SecretaryDashboard = () => {
             <Button
               variant="primary"
               onClick={handleFetchAgenda}
-              className="mb-3"
+              className="btn-custom"
             >
               Consultar Agenda
             </Button>
