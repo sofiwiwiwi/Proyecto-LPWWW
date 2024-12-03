@@ -229,7 +229,7 @@ const CashierDashboard = () => {
           </Col>
 
           {/* Canal 3: Consultar Reporte de Recaudación */}
-          <Col xs={12} md={8} lg={6} className="mb-4">
+          <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
             <h3>Generar Estado de Comisión</h3>
 
             {/* Fecha de inicio */}
