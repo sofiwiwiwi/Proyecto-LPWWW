@@ -364,27 +364,7 @@ const SecretaryDashboard = () => {
           </Col>
   
           {/* Canal 4: Consultar Agenda */}
-          <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
-            {selectedDoctor && (
-              <>
-                <h5>Consultar Agenda</h5>
-                <button className="btn-custom" onClick={handleFetchAgenda}>Ver Agenda</button>
-                <div>
-                  {agendaData && (
-                    <div>
-                      <h6>Agenda de {selectedDoctor}</h6>
-                      <ul>
-                        {agendaData.getDoctorAgenda.map((agenda, index) => (
-                          <li key={index}>{agenda.date} - {agenda.timeSlot}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </Col>
-  
+         
           {/* Canal 5: Ver Pacientes en Espera */}
           <Col xs={12} sm={6} md={4} lg={3} className="mt-3">
             {selectedDoctor && (
@@ -406,6 +386,104 @@ const SecretaryDashboard = () => {
                   )}
                 </div>
               </>
+            )}
+          </Col>
+        </Row>
+        <Row>
+        {/* Columna para el formulario */}
+          <Col xs={12} md={4} className="mb-4">
+            <h3>Consultar Agenda</h3>
+
+            {/* Fecha de inicio */}
+            <Form.Group className="mb-3">
+              <Form.Label>Fecha de inicio:</Form.Label>
+              <Form.Control
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </Form.Group>
+
+            {/* Fecha de término */}
+            <Form.Group className="mb-3">
+              <Form.Label>Fecha de término:</Form.Label>
+              <Form.Control
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </Form.Group>
+
+            {/* Botón para consultar agenda */}
+            <Button
+              variant="primary"
+              onClick={handleFetchAgenda}
+              className="mb-3"
+            >
+              Consultar Agenda
+            </Button>
+
+            {/* Cargando */}
+            {loadingAgenda && <p>Cargando agenda...</p>}
+          </Col>
+
+          {/* Columna para la lista de la agenda */}
+          <Col xs={12} md={8} className="mb-4">
+            {/* Mostrar la agenda */}
+            {agendaData && agendaData.getAgenda && (
+              <div className="d-flex flex-column">
+                <h4>Agenda</h4>
+                <ul className="list-unstyled">
+                  {agendaData.getAgenda.map((day) => (
+                    <li key={day.id} className="mb-4">
+                      <strong>{new Date(parseInt(day.date)).toLocaleDateString("es-ES")}</strong>
+                      <ul className="list-unstyled">
+                        {day.timeSlots.map((slot, index) => (
+                          <li key={index}>
+                            {slot.startTime} - {slot.endTime}{" "}
+                            {slot.isReserved ? (
+                              slot.isAttended ? (
+                                <span>(Ya entendida)</span>
+                              ) : (
+                                <Button
+                                  variant="danger"
+                                  onClick={() =>
+                                    handleCancelReservation(
+                                      selectedDoctor,
+                                      day.date,
+                                      slot.startTime,
+                                      slot.endTime
+                                    )
+                                  }
+                                >
+                                  Eliminar reserva
+                                </Button>
+                              )
+                            ) : (
+                              <Button
+                                variant="danger"
+                                onClick={() =>
+                                  handleRemoveTimeSlot(day.id, slot.startTime, slot.endTime)
+                                }
+                              >
+                                Eliminar horario
+                              </Button>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+
+                      {/* Botón para añadir horario */}
+                      <Button
+                        variant="light"
+                        onClick={() => handleAddTimeSlot(day.id, "10:00", "10:30")}
+                      >
+                        Añadir Horario (10:00-10:30)
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
           </Col>
         </Row>
