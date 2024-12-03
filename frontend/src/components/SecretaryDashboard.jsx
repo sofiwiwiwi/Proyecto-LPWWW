@@ -446,6 +446,7 @@ const SecretaryDashboard = () => {
                                 <span>(Ya entendida)</span>
                               ) : (
                                 <Button
+                                  className="logout-button"
                                   variant="danger"
                                   onClick={() =>
                                     handleCancelReservation(
@@ -461,6 +462,7 @@ const SecretaryDashboard = () => {
                               )
                             ) : (
                               <Button
+                                className="logout-button"
                                 variant="danger"
                                 onClick={() =>
                                   handleRemoveTimeSlot(day.id, slot.startTime, slot.endTime)
