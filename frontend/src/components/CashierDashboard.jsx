@@ -82,7 +82,7 @@ const CashierDashboard = () => {
   const [endDate, setEndDate] = useState("");
 
   const handleRegisterPayment = async () => {
-    if (!selectedDoctor || !amountPaid || !paymentMethod) {
+    if (!selectedDoctor || !amountPaid || !paymentMethod || !paymentDate) {
       alert("Por favor complete todos los campos obligatorios.");
       return;
     }
@@ -190,7 +190,6 @@ const CashierDashboard = () => {
                 Hoy
               </Button>
             </Form.Group>
-
             <Form.Group className="mb-3">
               <Form.Label>Monto Pagado</Form.Label>
               <Form.Control
@@ -199,7 +198,6 @@ const CashierDashboard = () => {
                 onChange={(e) => setAmountPaid(e.target.value)}
               />
             </Form.Group>
-
             <Form.Group className="mb-3">
               <Form.Label>Método de Pago</Form.Label>
               <Form.Select
@@ -213,7 +211,6 @@ const CashierDashboard = () => {
                 <option value="FONASA">FONASA</option>
               </Form.Select>
             </Form.Group>
-
             <Form.Group className="mb-3">
               <Form.Label>Referencia (opcional)</Form.Label>
               <Form.Control
@@ -222,7 +219,6 @@ const CashierDashboard = () => {
                 onChange={(e) => setReference(e.target.value)}
               />
             </Form.Group>
-
             <Button
               variant="primary"
               onClick={handleRegisterPayment}
@@ -233,10 +229,12 @@ const CashierDashboard = () => {
           </Col>
 
           {/* Canal 3: Consultar Reporte de Recaudación */}
-          <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
-            <h5>Generar Estado de Comisión</h5>
+          <Col xs={12} md={8} lg={6} className="mb-4">
+            <h3>Generar Estado de Comisión</h3>
+
+            {/* Fecha de inicio */}
             <Form.Group className="mb-3">
-              <Form.Label>Fecha de Inicio</Form.Label>
+              <Form.Label>Fecha de inicio:</Form.Label>
               <Form.Control
                 type="date"
                 value={startDate}
@@ -244,8 +242,9 @@ const CashierDashboard = () => {
               />
             </Form.Group>
 
+            {/* Fecha de término */}
             <Form.Group className="mb-3">
-              <Form.Label>Fecha de Fin</Form.Label>
+              <Form.Label>Fecha de término:</Form.Label>
               <Form.Control
                 type="date"
                 value={endDate}
@@ -253,13 +252,47 @@ const CashierDashboard = () => {
               />
             </Form.Group>
 
-            <Button
-              variant="secondary"
-              onClick={() => fetchGeneralReport({ variables: { startDate, endDate } })}
-              className="btn-custom"
-            >
-              Generar Reporte
+            {/* Botón para generar estado de comisión */}
+            <Button variant="primary" onClick={handleFetchStatement} className="btn-custom">
+              Generar Estado
             </Button>
+
+            {/* Cargando estado de comisión */}
+            {loadingStatement && <p>Cargando estado de comisión...</p>}
+
+            {/* Mostrar estado de comisión */}
+            {statementData && (
+              <div>
+                {statementData.getCommissionStatement?.map((statement) => (
+                  <div key={statement.doctorId} className="mb-4">
+                    <h4>Estado de Comisión - {statement.doctorName}</h4>
+                    <p><strong>Total Ingresos:</strong> ${statement.totalRevenue.toFixed(2)}</p>
+                    <p><strong>Tasa de Comisión:</strong> {statement.commissionPercentage}%</p>
+                    <p><strong>Monto de Comisión:</strong> ${statement.commissionAmount.toFixed(2)}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Cargando informe general */}
+            {loadingGeneral && <p>Cargando informe general...</p>}
+
+            {/* Mostrar informe general */}
+            {generalData && generalData.getGeneralReport && (
+              <div>
+                <h3>Informe General</h3>
+                <p><strong>Total Pacientes:</strong> {generalData.getGeneralReport.totalPatients}</p>
+                <p><strong>Total Recaudado:</strong> ${generalData.getGeneralReport.totalRevenue.toFixed(2)}</p>
+                <h4>Detalles por Médico:</h4>
+                {generalData.getGeneralReport.doctorReports.map((report) => (
+                  <div key={report.doctorId} className="mb-3">
+                    <p><strong>Médico:</strong> {report.doctorName}</p>
+                    <p>Total Pacientes: {report.totalPatients}</p>
+                    <p>Total Recaudado: ${report.totalRevenue.toFixed(2)}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </Col>
 
           <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
