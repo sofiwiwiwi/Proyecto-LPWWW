@@ -5,8 +5,14 @@
 - [Backend](#backend)
 - [Frontend](#frontend)
 
+### Integrantes
+- Diego Acevedo --- 202073532-8
+- Florencia Ramírez --- 202073522-0
+- Sofía Riquelme --- 202073615-4
+- Gabriel Vergara --- 202073616-2
+
 ### Descripción
-Este proyecto es la parte del backend del sistema de gestión del Centro Médico Galenos, desarrollado para facilitar la administración de agendas médicas, recaudación de pagos, y gestión de comisiones.
+Este proyecto es del sistema de gestión del Centro Médico Galenos, desarrollado para facilitar la administración de agendas médicas, recaudación de pagos, y gestión de comisiones.
 #### Funcionalidades
 ##### Paciente
 El paciente puede:
@@ -58,14 +64,15 @@ Todos estos usuarios tienen la constraseña "hola123"
 `npm install`
 
 #### Configurar variables de entorno en archivo .env
-El archivo `.env` debe estar en la carpeta `backend`. La base de datos se encuentra en la nube, y se accede con la URI de este archivo
+El archivo `.env` debe estar en la carpeta `backend`. La base de datos se encuentra en la nube, y se accede con la URI de este archivo. Es **muy importante** que este archivo se llame `.env`. 
 ```
 MONGO_URI=mongodb+srv://admin:jPw9tC*0MhSvQjD@galenos.mm0in.mongodb.net/galenos?retryWrites=true&w=majority&appName=Galenos
 PORT=4000
 JWT_SECRET=8jJhjDpQ%W9IhG3
 ```
 #### Iniciar el servidor
-`npm run dev`
+`npm start`
+En caso de errores, asegurarse de tener `dotenv`instalado (se debiese instalar al hacer `npm install`pero por si acaso)
 
 #### Importante:
 En la carpeta de documentación se pueden ver las queries disponibles
@@ -79,7 +86,7 @@ En la carpeta de documentación se pueden ver las queries disponibles
 #### Requisitos
 
   - Node.js (v14 o superior)
-  - MongoDB (base de datos local, debe llamarse galenos)
+  - MongoDB (ver sección [Backend](#backend) para configuración de variables de entorno)
   - NPM (instalado con Node.js)
 
 #### Instalar dependencias
