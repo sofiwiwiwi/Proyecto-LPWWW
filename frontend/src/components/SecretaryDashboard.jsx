@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { useAuth } from "../authContext";
+import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import './SecretaryDashboard.css';
 
 const GET_DOCTORS = gql`
   query GetDoctors {
@@ -237,186 +239,180 @@ const SecretaryDashboard = () => {
 
   return (
     <div className="d-flex justify-content-center align-items-center min-vh-100 text-white">
-    <div className="container p-4 shadow-lg rounded">
-      <h2>Panel de la Secretaria: {user?.name}</h2>
-      <h3>Lista de Médicos</h3>
-      <ul>
-        {doctorsData.getDoctors.map((doctor) => (
-          <li key={doctor.id}>
-            <strong>{doctor.name}</strong> - {doctor.specialty}
-            <button className="btn btn-primary" onClick={() => handleSelectDoctor(doctor.id)}>
-              Seleccionar
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      {selectedDoctor && (
-        <>
-          <div>
-            <h3>Agregar Disponibilidad</h3>
-            <button className="btn btn-primary" onClick={addNewSlot}>Agregar Nuevo Horario</button>
-            {availability.map((slot, index) => (
-              <div key={index}>
-                <select
-                  value={slot.day}
-                  onChange={(e) =>
-                    setAvailability(
-                      availability.map((s, i) =>
-                        i === index ? { ...s, day: e.target.value } : s
-                      )
-                    )
-                  }
+      <div className="container p-4 shadow-lg rounded">
+        <h3>Panel de la Secretaria</h3>
+        
+        <Row>
+          {/* Canal 1: Lista de Médicos */}
+          <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+            <h5>Seleccione un Médico</h5>
+            <ul className="list-unstyled">
+              {doctorsData.getDoctors.map((doctor) => (
+                <li
+                  key={doctor.id}
+                  className={`mb-2 p-2 ${selectedDoctor === doctor.id ? 'text-white rounded' : ''}`}
+                  style={{backgroundColor: selectedDoctor === doctor.id ? '#16324f' : 'transparent',
+                    cursor: 'pointer' }}
                 >
-                  <option value="">Seleccione un día</option>
-                  <option value="Lunes">Lunes</option>
-                  <option value="Martes">Martes</option>
-                  <option value="Miércoles">Miércoles</option>
-                  <option value="Jueves">Jueves</option>
-                  <option value="Viernes">Viernes</option>
-                  <option value="Sábado">Sábado</option>
-                  <option value="Domingo">Domingo</option>
-                </select>
-                <input
-                  type="time"
-                  value={slot.startTime}
-                  onChange={(e) =>
-                    setAvailability(
-                      availability.map((s, i) =>
-                        i === index ? { ...s, startTime: e.target.value } : s
-                      )
-                    )
-                  }
-                />
-                <input
-                  type="time"
-                  value={slot.endTime}
-                  onChange={(e) =>
-                    setAvailability(
-                      availability.map((s, i) =>
-                        i === index ? { ...s, endTime: e.target.value } : s
-                      )
-                    )
-                  }
-                />
-              </div>
-            ))}
-            <button className="btn btn-success" onClick={handleAddAvailability}>Guardar Disponibilidad</button>
-          </div>
-
-          <div>
-            <h3>Generar Agenda</h3>
-            <label>
-              Fecha de inicio:
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </label>
-            <label>
-              Fecha de término:
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </label>
-            <button className="btn btn-primary"onClick={handleGenerateAgenda}>Generar Agenda</button>
-          </div>
-
-          <div>
-            <h3>Consultar Agenda</h3>
-            <label>
-              Fecha de inicio:
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </label>
-            <label>
-              Fecha de término:
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </label>
-            <button className="btn btn-primary" onClick={handleFetchAgenda}>Consultar Agenda</button>
-            {loadingAgenda && <p>Cargando agenda...</p>}
-            {agendaData && agendaData.getAgenda && (
-              <ul>
-                {agendaData.getAgenda.map((day) => (
-                  <li key={day.id}>
-                    <strong>{new Date(parseInt(day.date)).toLocaleDateString("es-ES")}</strong>
-                    <ul>
-                      {day.timeSlots.map((slot, index) => (
-                        <li key={index}>
-                          {slot.startTime} - {slot.endTime}{" "}
-                          {slot.isReserved ? (
-                              slot.isAttended ? (
-                                <span>(Ya entendida)</span>
-                              ) : (
-                                <button
-                                  className="btn btn-danger"
-                                  onClick={() =>
-                                    handleCancelReservation(selectedDoctor, day.date, slot.startTime, slot.endTime)
-                                  }
-                                >
-                                  Eliminar reserva
-                                </button>
-                              )
-                            ) : (
-                              <button
-                                className="btn btn-danger"
-                                onClick={() =>
-                                  handleRemoveTimeSlot(day.id, slot.startTime, slot.endTime)
-                                }
-                              >
-                                Eliminar horario
-                              </button>
-                            )}
-                        </li>
-                      ))}
-                    </ul>
-                    <button
-                      className="btn btn-light"
-                      onClick={() => handleAddTimeSlot(day.id, "10:00", "10:30")}
+                  <strong>{doctor.name}</strong> - {doctor.specialty}
+                  <button
+                    className={`btn mt-2 ${selectedDoctor === doctor.id ? 'btn-light' : 'btn-primary'}`}
+                    onClick={() => handleSelectDoctor(doctor.id)}
+                    style={{
+                      backgroundColor: selectedDoctor === doctor.id ? 'green' : '#18435a', // Establecer color según si está seleccionado
+                      color: 'white', // Texto blanco
+                      border: 'none', // Sin borde
+                      padding: '0.375rem 0.75rem', // Ajuste de tamaño
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Seleccionar
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </Col>
+  
+          {/* Canal 2: Agregar Disponibilidad */}
+          <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+            {selectedDoctor && (
+              <>
+                <h5>Agregar Disponibilidad</h5>
+                <button className="btn-custom" onClick={addNewSlot}>
+                  Agregar Nuevo Horario
+                </button>
+                {availability.map((slot, index) => (
+                  <div key={index} className="mt-2">
+                    <select
+                      value={slot.day}
+                      onChange={(e) =>
+                        setAvailability(
+                          availability.map((s, i) =>
+                            i === index ? { ...s, day: e.target.value } : s
+                          )
+                        )
+                      }
                     >
-                      Añadir Horario (10:00-10:30)
-                    </button>
-                  </li>
+                      <option value="">Seleccione un día</option>
+                      <option value="Lunes">Lunes</option>
+                      <option value="Martes">Martes</option>
+                      <option value="Miércoles">Miércoles</option>
+                      <option value="Jueves">Jueves</option>
+                      <option value="Viernes">Viernes</option>
+                      <option value="Sábado">Sábado</option>
+                      <option value="Domingo">Domingo</option>
+                    </select>
+                    <input
+                      type="time"
+                      value={slot.startTime}
+                      onChange={(e) =>
+                        setAvailability(
+                          availability.map((s, i) =>
+                            i === index ? { ...s, startTime: e.target.value } : s
+                          )
+                        )
+                      }
+                    />
+                    <input
+                      type="time"
+                      value={slot.endTime}
+                      onChange={(e) =>
+                        setAvailability(
+                          availability.map((s, i) =>
+                            i === index ? { ...s, endTime: e.target.value } : s
+                          )
+                        )
+                      }
+                    />
+                  </div>
                 ))}
-              </ul>
+                <button className="btn-custom-lapis" onClick={handleAddAvailability}>Guardar Disponibilidad</button>
+              </>
             )}
-          </div>
-
-          <div>
-            <h3>Pacientes en espera</h3>
-            <button className="btn btn-primary" onClick={handleFetchPatients}>Pacientes en espera</button>
-              {loadingPatients && <p>Cargando pacientes...</p>}
-              {patientsData?.getWaitingPatients.length > 0 ? (
-                <ul className="list-group">
-                  {patientsData.getWaitingPatients.map((appointment) => (
-                    <li key={`${appointment.patientId}-${appointment.date}-${appointment.startTime}`}>
-                      <span><strong>Paciente:</strong> {appointment.patientName}</span>
-                      <span><strong> - Fecha:</strong> {new Date(Number(appointment.date)).toLocaleDateString('es-ES')}</span>
-                      <span>
-                        <strong> - Hora:</strong> {appointment.startTime} - {appointment.endTime}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No hay pacientes en espera.</p>
-              )}
-          </div>
-        </>
-      )}
-    </div>
+          </Col>
+  
+          {/* Canal 3: Generar Agenda */}
+          <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+            {selectedDoctor && (
+              <>
+                <h5>Generar Agenda</h5>
+                <form onSubmit={handleGenerateAgenda}>
+                  <div className="mb-3">
+                    <label>Fecha de Inicio</label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label>Fecha de Fin</label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <button className="btn-custom" type="submit">Generar Agenda</button>
+                </form>
+              </>
+            )}
+          </Col>
+  
+          {/* Canal 4: Consultar Agenda */}
+          <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+            {selectedDoctor && (
+              <>
+                <h5>Consultar Agenda</h5>
+                <button className="btn-custom" onClick={handleFetchAgenda}>Ver Agenda</button>
+                <div>
+                  {agendaData && (
+                    <div>
+                      <h6>Agenda de {selectedDoctor}</h6>
+                      <ul>
+                        {agendaData.getDoctorAgenda.map((agenda, index) => (
+                          <li key={index}>{agenda.date} - {agenda.timeSlot}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </Col>
+  
+          {/* Canal 5: Ver Pacientes en Espera */}
+          <Col xs={12} sm={6} md={4} lg={3} className="mt-3">
+            {selectedDoctor && (
+              <>
+                <h5>Ver Pacientes en Espera</h5>
+                <button className="btn-custom" onClick={handleFetchPatients}>Ver Pacientes</button>
+                <div>
+                  {patientsData && (
+                    <div>
+                      <h6>Pacientes en espera para {selectedDoctor}</h6>
+                      <ul>
+                        {patientsData.getWaitingPatients.map((patient, index) => (
+                          <li key={index}>
+                            {patient.name} - {patient.issue}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </Col>
+        </Row>
+      </div>
     </div>
   );
+  
 };
 
 export default SecretaryDashboard;
