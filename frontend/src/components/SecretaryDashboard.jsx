@@ -374,11 +374,11 @@ const SecretaryDashboard = () => {
                 <div>
                   {patientsData && (
                     <div>
-                      <h6>Pacientes en espera para {selectedDoctor}</h6>
+                      <h6>Pacientes en espera</h6>
                       <ul>
                         {patientsData.getWaitingPatients.map((patient, index) => (
                           <li key={index}>
-                            {patient.name} - {patient.issue}
+                            {patient.patientName}, {new Date(Number(patient.date)).toISOString().split("T")[0]} {patient.startTime}-{patient.endTime}
                           </li>
                         ))}
                       </ul>
