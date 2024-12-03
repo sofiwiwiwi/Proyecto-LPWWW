@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { gql, useQuery, useMutation, useLazyQuery } from "@apollo/client";
+import { Row, Col, Button, Form } from "react-bootstrap";
+import './SecretaryDashboard.css';
 
 const GET_DOCTORS = gql`
   query GetDoctors {
@@ -152,161 +154,178 @@ const CashierDashboard = () => {
   if (errorDoctors) return <p>Error al cargar los médicos: {errorDoctors.message}</p>;
 
   return (
-    <div className="container">
-      <h2>Panel del Cajero</h2>
+    <div className="d-flex justify-content-center align-items-center min-vh-100 text-white">
+      <div className="container p-4 shadow-lg rounded">
+        <h2>Panel del Cajero</h2>
 
-      <h3>Seleccionar Médico</h3>
-      <select
-        value={selectedDoctor}
-        onChange={(e) => setSelectedDoctor(e.target.value)}
-      >
-        <option value="">Todos los médicos</option>
-        {doctorsData.getDoctors.map((doctor) => (
-          <option key={doctor.id} value={doctor.id}>
-            {doctor.name} - {doctor.specialty}
-          </option>
-        ))}
-      </select>
+        <Row>
+          {/* Canal 1: Seleccionar Médico */}
+          <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+            <h5>Seleccionar Médico</h5>
+            <Form.Select
+              value={selectedDoctor}
+              onChange={(e) => setSelectedDoctor(e.target.value)}
+              className="mb-3"
+            >
+              <option value="">Todos los médicos</option>
+              {doctorsData?.getDoctors.map((doctor) => (
+                <option key={doctor.id} value={doctor.id}>
+                  {doctor.name} - {doctor.specialty}
+                </option>
+              ))}
+            </Form.Select>
+          </Col>
 
-      <h3>Registrar Pago</h3>
-      <label>
-        Fecha de Pago:
-        <input
-          type="date"
-          value={paymentDate}
-          onChange={(e) => setPaymentDate(e.target.value)}
-        />
-        <button onClick={setTodayAsPaymentDate}>Hoy</button>
-      </label>
-      <label>
-        Monto Pagado:
-        <input
-          type="number"
-          value={amountPaid}
-          onChange={(e) => setAmountPaid(e.target.value)}
-        />
-      </label>
-      <label>
-        Método de Pago:
-        <select
-          value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value)}
-        >
-          <option value="">Seleccione un método</option>
-          <option value="Cash">Efectivo</option>
-          <option value="Card">Tarjeta</option>
-          <option value="Isapre">Isapre</option>
-          <option value="FONASA">FONASA</option>
-        </select>
-      </label>
-      <label>
-        Referencia (opcional):
-        <input
-          type="text"
-          value={reference}
-          onChange={(e) => setReference(e.target.value)}
-        />
-      </label>
-      <button onClick={handleRegisterPayment}>Registrar Pago</button>
+          {/* Canal 2: Registrar Pago */}
+          <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+            <h5>Registrar Pago</h5>
+            <Form.Group className="mb-3">
+              <Form.Label>Fecha de Pago</Form.Label>
+              <Form.Control
+                type="date"
+                value={paymentDate}
+                onChange={(e) => setPaymentDate(e.target.value)}
+              />
+              <Button className="btn-custom" variant="secondary" onClick={() => setPaymentDate(new Date().toISOString().split("T")[0])}>
+                Hoy
+              </Button>
+            </Form.Group>
 
-      <h3>Generar Estado de Comisión</h3>
-      <label>
-        Fecha de inicio:
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-        />
-      </label>
-      <label>
-        Fecha de término:
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-        />
-      </label>
-      <button onClick={handleFetchStatement}>Generar Estado</button>
+            <Form.Group className="mb-3">
+              <Form.Label>Monto Pagado</Form.Label>
+              <Form.Control
+                type="number"
+                value={amountPaid}
+                onChange={(e) => setAmountPaid(e.target.value)}
+              />
+            </Form.Group>
 
-      {loadingStatement && <p>Cargando estado de comisión...</p>}
-      {statementData && (
-        <div>
-          {statementData.getCommissionStatement?.map((statement) => (
-            <div key={statement.doctorId}>
-              <h4>Estado de Comisión - {statement.doctorName}</h4>
-              <p><strong>Total Ingresos:</strong> ${statement.totalRevenue.toFixed(2)}</p>
-              <p><strong>Tasa de Comisión:</strong> {statement.commissionPercentage}%</p>
-              <p><strong>Monto de Comisión:</strong> ${statement.commissionAmount.toFixed(2)}</p>
-            </div>
-          ))}
-        </div>
-      )}
+            <Form.Group className="mb-3">
+              <Form.Label>Método de Pago</Form.Label>
+              <Form.Select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              >
+                <option value="">Seleccione un método</option>
+                <option value="Cash">Efectivo</option>
+                <option value="Card">Tarjeta</option>
+                <option value="Isapre">Isapre</option>
+                <option value="FONASA">FONASA</option>
+              </Form.Select>
+            </Form.Group>
 
-      {loadingGeneral && <p>Cargando informe general...</p>}
-      {generalData && generalData.getGeneralReport && (
-        <div>
-          <h3>Informe General</h3>
-          <p><strong>Total Pacientes:</strong> {generalData.getGeneralReport.totalPatients}</p>
-          <p><strong>Total Recaudado:</strong> ${generalData.getGeneralReport.totalRevenue.toFixed(2)}</p>
-          <h4>Detalles por Médico:</h4>
-          {generalData.getGeneralReport.doctorReports.map((report) => (
-            <div key={report.doctorId}>
-              <p><strong>Médico:</strong> {report.doctorName}</p>
-              <p>Total Pacientes: {report.totalPatients}</p>
-              <p>Total Recaudado: ${report.totalRevenue.toFixed(2)}</p>
-            </div>
-          ))}
-        </div>
-      )}
+            <Form.Group className="mb-3">
+              <Form.Label>Referencia (opcional)</Form.Label>
+              <Form.Control
+                type="text"
+                value={reference}
+                onChange={(e) => setReference(e.target.value)}
+              />
+            </Form.Group>
 
-      <h3>Informe de Recaudación</h3>
-      <label>
-        Fecha de inicio:
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-        />
-      </label>
-      <label>
-        Fecha de término:
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-        />
-      </label>
-      <label>
-        Médico (opcional):
-        <select
-          value={selectedDoctor}
-          onChange={(e) => setSelectedDoctor(e.target.value)}
-        >
-          <option value="">Todos los médicos</option>
-          {doctorsData.getDoctors.map((doctor) => (
-            <option key={doctor.id} value={doctor.id}>
-              {doctor.name} - {doctor.specialty}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button onClick={handleFetchRevenueReport}>Generar Informe</button>
+            <Button
+              variant="primary"
+              onClick={handleRegisterPayment}
+              className="btn-custom"
+            >
+              Registrar Pago
+            </Button>
+          </Col>
 
-      {loadingRevenue && <p>Cargando informe de recaudación...</p>}
-      {revenueData && (
-        <div>
-          <h4>Recaudación</h4>
-          <ul>
-            {revenueData.getRevenueReport.map((report) => (
-              <li key={report.doctorId}>
-                <strong>{report.doctorName}</strong>
-                <p>Total Pacientes: {report.totalPatients}</p>
-                <p>Total Recaudado: ${report.totalRevenue.toFixed(2)}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+          {/* Canal 3: Consultar Reporte de Recaudación */}
+          <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+            <h5>Generar Estado de Comisión</h5>
+            <Form.Group className="mb-3">
+              <Form.Label>Fecha de Inicio</Form.Label>
+              <Form.Control
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Fecha de Fin</Form.Label>
+              <Form.Control
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </Form.Group>
+
+            <Button
+              variant="secondary"
+              onClick={() => fetchGeneralReport({ variables: { startDate, endDate } })}
+              className="btn-custom"
+            >
+              Generar Reporte
+            </Button>
+          </Col>
+
+          <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
+            <h3>Informe de Recaudación</h3>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Fecha de inicio:</Form.Label>
+              <Form.Control
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Fecha de término:</Form.Label>
+              <Form.Control
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Médico (opcional):</Form.Label>
+              <Form.Control
+                as="select"
+                value={selectedDoctor}
+                onChange={(e) => setSelectedDoctor(e.target.value)}
+              >
+                <option value="">Todos los médicos</option>
+                {doctorsData.getDoctors.map((doctor) => (
+                  <option key={doctor.id} value={doctor.id}>
+                    {doctor.name} - {doctor.specialty}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+
+            <Button
+              variant="primary"
+              onClick={handleFetchRevenueReport}
+              className="btn-custom"
+            >
+              Generar Informe
+            </Button>
+
+            {loadingRevenue && <p>Cargando informe de recaudación...</p>}
+
+            {revenueData && (
+              <div>
+                <h4>Recaudación</h4>
+                <ul>
+                  {revenueData.getRevenueReport.map((report) => (
+                    <li key={report.doctorId}>
+                      <strong>{report.doctorName}</strong>
+                      <p>Total Pacientes: {report.totalPatients}</p>
+                      <p>Total Recaudado: ${report.totalRevenue.toFixed(2)}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Col>
+        </Row>   
+      </div>
     </div>
   );
 };
